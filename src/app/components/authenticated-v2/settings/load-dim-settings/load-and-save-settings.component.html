@@ -1,25 +1,34 @@
-<form (submit)="submit()" [formGroup]="settingsNameForm">
+<form [formGroup]="settingsNameForm">
+  <!-- <mat-progress-bar *ngIf="isDimConnected() === false; else notConnected" id="dim-progress" mode="determinate" value="100" [ngStyle]="{'background-color':'green'}" style="margin-bottom: 10px; margin-top:-10px; max-width:10%"></mat-progress-bar>
+  <ng-template #notConnected>
+    <mat-progress-bar id="dim-progress" mode="determinate" value="100" [ngStyle]="{'color':'red'}" style="margin-bottom: 10px; margin-top:-10px; max-width:10%"></mat-progress-bar>
+  </ng-template> -->
+
   <table id="settings">
     <tr>
       <td>
-        <mat-form-field appearance="outline">
-          <mat-label>Name to save the configuration</mat-label>
-          <input formControlName="name" matInput maxlength="30" minlength="4" placeholder="Awesome Discipline Build 4">
-        </mat-form-field>
-      </td>
-      <td>
-        <button [disabled]="!this.settingsNameForm.get('name')?.value || this.settingsNameForm.get('name')?.value.length < 4
-|| this.settingsNameForm.get('name')?.value.length > 30" color="primary" mat-raised-button type="submit">
-          Save current
+        <button (click)="updateDim()" [disabled]="getDimStatus() == true" color="primary" mat-raised-button type="submit">
+          <span *ngIf="getDimStatus() == true">Updating...</span>
+          <span *ngIf="getDimStatus() == false">Update</span>
         </button>
       </td>
       <td>
-        <button (click)="clearEverything()" color="warn" mat-raised-button
-                matTooltip="Clears the ENTIRE configuration and uses the default settings. Use with caution."
-        >Clear everything
+        <button (click)="clearDIM()" color="warn" mat-raised-button
+                matTooltip="Clears all DIM loadouts"
+        >Clear DIM Loadouts
         </button>
       </td>
       <td>
+        <button id="improveBtn" (click)="checkAllArmorImprovement()" [disabled]="getDimStatus() == true" color="primary" mat-raised-button type="submit">
+          <span *ngIf="getDimStatus() == true">{{progressText}}</span>
+          <span *ngIf="getDimStatus() == false">Check all for improved stats</span>
+        </button>
+      </td>
+      <td> 
+           <mat-label>DIM Connected: {{isDimConnected()}}</mat-label>
+           <!-- <label id="progress" hidden="true">Progress: 0/0</label> -->
+      </td>
+      <!-- <td>
         <button
           (click)="openSnackBar('Copied the configuration to your clipboard. You can share it with your friends.')"
           [cdkCopyToClipboard]="config.getCurrentConfigBase64Compressed()" color="primary"
@@ -27,7 +36,7 @@
           matTooltip="Copy your current configuration into your clipboard. You will be able to share it with others and import it later.">
           Copy Current
         </button>
-      </td>
+      </td> -->
     </tr>
     <tr style="display: none">
       <td>
@@ -50,18 +59,12 @@
                 matTooltip="Load the currently selected configuration.">Load
         </button>
       </td>
-      <td>
-        <button (click)="delete(selectedEntry)" [disabled]="!selectedEntry || storedConfigs.length == 0" color="warn"
-                mat-stroked-button
-                matTooltip="Delete the currently selected configuration. Can not be undone.">Delete
-        </button>
-      </td>
     </tr>
   </table>
 </form>
 <br/>
 
-<table [dataSource]="getItems()" mat-table>
+<table [dataSource]="getDimItemsEnabled()" mat-table>
   <!-- Position Column -->
   <ng-container matColumnDef="name">
     <th *matHeaderCellDef mat-header-cell>Name</th>
@@ -141,6 +144,34 @@
     </td>
   </ng-container>
 
+  <!-- Position Column -->
+  <ng-container matColumnDef="improve">
+    <th *matHeaderCellDef mat-header-cell>
+      <mat-icon style="transform: translateY(15%)">arrow_upward</mat-icon>
+    </th>
+    <td *matCellDef="let element" mat-cell>
+      <ng-container *ngIf="getCheckingLoadout() == element.dimID; else notInProgress">
+        <mat-icon matTooltip="Checking..." 
+        [ngStyle]="{'color':'lightgray'}" style="padding-top: 15%">more_horiz</mat-icon>
+      </ng-container>
+      <ng-template #notInProgress>
+        <ng-container *ngIf="hasLoadoutBeenChecked(element.dimID) == true; then checkImprovement; else notChecked"></ng-container>
+        <ng-template #checkImprovement>
+          <ng-container *ngIf="canLoadoutImprove(element.dimID) == true; else noImprovement">
+            <mat-icon matTooltip="{{howCanLoadoutImprove(element.dimID)}}" 
+             [ngStyle]="{'color':'lime'}" style="padding-top: 15%">arrow_circle_up</mat-icon>  
+          </ng-container>
+          <ng-template #noImprovement>
+            <mat-icon (click)="checkArmorImprovement(element.dimID)" matTooltip="No improvement found when last checked" 
+              [ngStyle]="{'color':'gray'}" style="padding-top: 15%">horizontal_rule</mat-icon>
+          </ng-template>
+        </ng-template>
+        <ng-template #notChecked><mat-icon (click)="checkArmorImprovement(element.dimID)" matTooltip="Check loadout for improvement" 
+          [ngStyle]="{'color':'gray'}" style="padding-top: 15%">cached</mat-icon></ng-template>
+      </ng-template>
+      
+    </td>
+  </ng-container>
 
   <!-- Position Column -->
   <ng-container matColumnDef="delete">
@@ -148,20 +179,20 @@
 
     </th>
     <td *matCellDef="let element" mat-cell>
-      <button (click)="delete(element.name)" color="warn" mat-icon-button
-              matTooltip="Delete this configuration permanently.">
+      <!-- <button (click)="disableLoadout(element.dimID)" color="warn" mat-icon-button
+              matTooltip="Disable this loadout.">
         <mat-icon>delete_forever</mat-icon>
-      </button>
-      <button (click)="load(element.name)" color="primary" mat-icon-button
-              matTooltip="Load this configuration. Your current settings will be overwritten.">
+      </button> -->
+      <button (click)="load(element.name)" [ngStyle]="{'color':'deepskyblue'}" mat-icon-button
+              matTooltip="Load this loadout into D2ArmorPicker">
         <mat-icon>check_circle_outline</mat-icon>
       </button>
-      <button (click)="copySingleSettingToClipboard(element)"
+      <!-- <button (click)="copySingleSettingToClipboard(element)"
               color="primary"
               mat-icon-button
               matTooltip="Copy this configuration into your clipboard. You will be able to share it with others and import it later.">
         <mat-icon>get_app</mat-icon>
-      </button>
+      </button> -->
 
     </td>
   </ng-container>
@@ -170,39 +201,3 @@
   <tr *matRowDef="let row; columns: displayedColumns;" mat-row></tr>
 </table>
 
-<ng-container  *ngIf="getItems().length > 0">
-  <br>
-    <button color="primary" mat-raised-button
-            (click)="copyAllSettingsToClipboard()"
-            matTooltip="Export all configurations to the clipboard. You can then save and share them.">
-      Copy all saved configurations to the clipboard
-    </button>
-</ng-container>
-
-
-<!-- import -->
-<br/>
-<div>
-  <hr>
-  <h2>Import a previously exported configuration</h2>
-  <form [formGroup]="importTextForm">
-    <table>
-      <tr>
-        <td>
-          <mat-form-field appearance="outline">
-            <mat-label>Copied configuration</mat-label>
-            <input formControlName="content" matInput>
-          </mat-form-field>
-        </td>
-        <td>
-          <button (click)="runImport()" color="primary" mat-raised-button
-                  matTooltip="Import the given configuration">
-            Start the import
-          </button>
-        </td>
-      </tr>
-    </table>
-
-
-  </form>
-</div>

@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BuildConfiguration, FixableSelection} from "../data/buildConfiguration";
+import {BuildConfiguration} from "../data/buildConfiguration";
 import {BehaviorSubject, Observable} from "rxjs";
 import {ModOrAbility} from "../data/enum/modOrAbility";
 import * as lzutf8 from "lzutf8";
@@ -8,11 +8,16 @@ import {environment} from "../../environments/environment";
 import {EnumDictionary} from "../data/types/EnumDictionary";
 import {ArmorStat} from "../data/enum/armor-stat";
 import {ArmorSlot} from "../data/enum/armor-slot";
+import { dimHigherResult } from '../components/authenticated-v2/settings/load-dim-settings/load-and-save-settings.component';
 
 export interface StoredConfiguration {
   version: string;
   name: string;
   configuration: BuildConfiguration;
+  fromDIM: boolean
+  dimID: string | undefined;
+  dimLastUpdated: number | undefined;
+  disabled: boolean;
 }
 
 const lzCompOptions = {
@@ -56,7 +61,8 @@ export class ConfigurationService {
     this.saveCurrentConfiguration(this.__configuration)
   }
 
-  saveConfiguration(name: string, config: BuildConfiguration) {
+  saveConfiguration(name: string, config: BuildConfiguration, fromDIM: boolean = false, dimID?: string,
+     lastUpdated?: number, disabled: boolean = false) {
     let list = this.listSavedConfigurations();
     let c = this.listSavedConfigurations()
       .map((value, index): [StoredConfiguration, number] => [value, index])
@@ -67,12 +73,22 @@ export class ConfigurationService {
     list.push({
       configuration: config,
       name: name,
-      version: environment.version
+      version: environment.version,
+      fromDIM: fromDIM,
+      dimID: dimID,
+      dimLastUpdated: lastUpdated,
+      disabled: disabled
     });
     list = list.sort((a, b) => {
-      if (a.name < b.name) return -1;
-      else if (a.name > b.name) return 1;
-      return 0;
+      if (a.dimLastUpdated != undefined && b.dimLastUpdated != undefined) {
+        if (a.dimLastUpdated > b.dimLastUpdated) return -1;
+        else if (a.dimLastUpdated < b.dimLastUpdated) return 1;
+        return 0;
+      } else {
+          if (a.name < b.name) return -1;
+          else if (a.name > b.name) return 1;
+          return 0;
+      }
     })
 
     const compressed = lzutf8.compress(JSON.stringify(list), lzCompOptions);
@@ -80,13 +96,33 @@ export class ConfigurationService {
     this._storedConfigurations.next(list);
   }
 
+  doesDimConfigurationExist(name: string, id: string, lastUpdated?: number) {
+    return this.listSavedConfigurations().filter(c => c.name == name && c.dimID == id && c.dimLastUpdated == lastUpdated).length > 0;
+  }
+
+  didDimNameChange(id: string, newName: string) {
+    return this.listSavedConfigurations().filter(c => c.dimID == id && c.name != newName).length > 0;
+  }
+
   doesSavedConfigurationExist(name: string) {
     return this.listSavedConfigurations().filter(c => c.name == name).length > 0;
   }
 
-  loadSavedConfiguration(name: string): boolean {
+  listDimIDs(): string[] {
+    let listIDs: string[] = [];
+    let list = this.listSavedConfigurations().filter(c => c.fromDIM == true);
+    list.forEach((v) => listIDs.push(v.dimID!))
+    return listIDs;
+  }
+
+  loadSavedConfiguration(name: string, upgrade: boolean = false, improvedStats?: dimHigherResult): boolean {
     let c = this.listSavedConfigurations().filter(c => c.name == name)[0];
     if (!c) return false;
+    if (upgrade) {
+      for (let i = 0; i < improvedStats!.result.length; i++) {
+        c.configuration.minimumStatTiers[i as ArmorStat].value += improvedStats!.result[i]
+      }
+    }
     this.saveCurrentConfiguration(c.configuration);
     return true;
   }
@@ -142,9 +178,15 @@ export class ConfigurationService {
 
     let result = (JSON.parse(item) || []) as StoredConfiguration[]
     result = result.sort((a, b) => {
-      if (a.name < b.name) return -1;
-      else if (a.name > b.name) return 1;
-      return 0;
+      if (a.dimLastUpdated != undefined && b.dimLastUpdated != undefined) {
+        if (a.dimLastUpdated > b.dimLastUpdated) return -1;
+        else if (a.dimLastUpdated < b.dimLastUpdated) return 1;
+        return 0;
+      } else {
+          if (a.name < b.name) return -1;
+          else if (a.name > b.name) return 1;
+          return 0;
+      }
     })
     result.forEach(c => this.checkAndFixOldSavedConfigurations(c))
     return result;
@@ -155,6 +197,18 @@ export class ConfigurationService {
     let c = this.listSavedConfigurations()
       .map((value, index): [StoredConfiguration, number] => [value, index])
       .filter(c => c[0].name == name)[0];
+    if (!!c) {
+      list.splice(c[1], 1)
+    }
+    localStorage.setItem("storedConfigurations", lzutf8.compress(JSON.stringify(list), lzCompOptions))
+    this._storedConfigurations.next(list);
+  }
+
+  deleteDimConfigurationByID(id: string) {
+    let list = this.listSavedConfigurations();
+    let c = this.listSavedConfigurations()
+      .map((value, index): [StoredConfiguration, number] => [value, index])
+      .filter(c => c[0].dimID == id)[0];
     if (!!c) {
       list.splice(c[1], 1)
     }
@@ -188,7 +242,8 @@ export class ConfigurationService {
       config = {}
     }
 
-    var dummy: StoredConfiguration = {name: "dummy", version: "1", configuration: JSON.parse(config)}
+    var dummy: StoredConfiguration = {name: "dummy", version: "1", configuration: JSON.parse(config),
+          fromDIM: false, dimID: undefined, dimLastUpdated: undefined, disabled: false}
     this.checkAndFixOldSavedConfigurations(dummy);
     return dummy.configuration;
   }

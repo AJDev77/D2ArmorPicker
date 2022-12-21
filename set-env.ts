@@ -38,6 +38,7 @@ const data = {
   apiKey: process.env.D2AP_BUNGIE_API_KEY,
   clientId: process.env.D2AP_BUNGIE_CLIENT_ID,
   client_secret: process.env.D2AP_BUNGIE_CLIENT_SECRET,
+  dimAPIKey: process.env.D2AP_DIM_API_KEY,
   nodeEnv: process.env.NODE_ENV
 }
 

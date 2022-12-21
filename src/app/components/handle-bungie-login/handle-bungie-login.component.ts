@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
+import { DimApiService } from 'src/app/services/dim-api.service';
 import {AuthService} from "../../services/auth.service";
 
 @Component({
@@ -9,7 +10,7 @@ import {AuthService} from "../../services/auth.service";
 })
 export class HandleBungieLoginComponent implements OnInit {
 
-  constructor(private activatedRoute: ActivatedRoute, private router: Router, private loginService: AuthService) {
+  constructor(private activatedRoute: ActivatedRoute, private router: Router, private loginService: AuthService, private dimservice: DimApiService) {
   }
 
   ngOnInit(): void {
@@ -27,6 +28,9 @@ export class HandleBungieLoginComponent implements OnInit {
 
       console.info("Generate tokens with the new code")
       await this.loginService.generateTokens()
+
+      console.info("Logging in with DIM")
+      await this.dimservice.generateTokens()
 
       console.info("Now navigate to /")
       await this.router.navigate(["/"]);

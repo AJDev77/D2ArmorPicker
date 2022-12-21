@@ -1,10 +1,10 @@
-import {Injectable, OnDestroy} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {CharacterClass} from "../data/enum/character-Class";
 import {DatabaseService} from "./database.service";
 import {IManifestArmor} from "../data/types/IManifestArmor";
 import {ConfigurationService} from "./configuration.service";
 import {debounceTime} from "rxjs/operators";
-import {BehaviorSubject, Observable, ReplaySubject, Subject} from "rxjs";
+import {BehaviorSubject, Observable, ReplaySubject} from "rxjs";
 import {BuildConfiguration} from "../data/buildConfiguration";
 import {ArmorStat} from "../data/enum/armor-stat";
 import {StatusProviderService} from "./status-provider.service";
@@ -13,6 +13,7 @@ import {AuthService} from "./auth.service";
 import {ArmorSlot} from "../data/enum/armor-slot";
 import {NavigationEnd, Router} from "@angular/router";
 import {ResultDefinition} from "../components/authenticated-v2/results/results.component";
+import { DimApiService } from './dim-api.service';
 
 type info = {
   results: ResultDefinition[],
@@ -38,8 +39,6 @@ export class InventoryService {
   private allArmorResults: ResultDefinition[] = [];
   private currentClass: CharacterClass = CharacterClass.None;
   private ignoreArmorAffinitiesOnMasterworkedItems: boolean = false;
-
-
   private _manifest: ReplaySubject<null>;
   public readonly manifest: Observable<null>;
   private _inventory: ReplaySubject<null>;
@@ -52,7 +51,7 @@ export class InventoryService {
   private updatingResults: boolean = false;
 
   constructor(private db: DatabaseService, private config: ConfigurationService, private status: StatusProviderService,
-              private api: BungieApiService, private auth: AuthService, private router: Router) {
+              private api: BungieApiService, private auth: AuthService, private router: Router, private dimAPI: DimApiService) {
     this._inventory = new ReplaySubject(1)
     this.inventory = this._inventory.asObservable();
     this._manifest = new ReplaySubject(1)
@@ -68,15 +67,18 @@ export class InventoryService {
     let isUpdating = false;
 
     // TODO: This gives a race condition on some parts.
+    // TODO: DIM token expire, logout
     router.events.pipe(
       debounceTime(5)
     ).subscribe(async val => {
       if (this.auth.refreshTokenExpired || !await this.auth.autoRegenerateTokens()) {
-        await this.auth.logout();
+        //await this.auth.logout();
         return;
       }
       if (!auth.isAuthenticated())
         return;
+
+      dimAPI.autoRegenerateTokens();
 
       if (val instanceof NavigationEnd) {
         this.clearResults()
@@ -97,6 +99,9 @@ export class InventoryService {
         }
         if (!auth.isAuthenticated())
           return;
+
+        dimAPI.autoRegenerateTokens();
+
 
         this._config = c;
         this.ignoreArmorAffinitiesOnMasterworkedItems = c.ignoreArmorAffinitiesOnMasterworkedItems;

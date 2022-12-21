@@ -34,6 +34,10 @@ export class LoadAndSaveSettingsComponent implements OnInit, OnDestroy {
       .subscribe(d => this.storedConfigs = d)
   }
 
+  getItems(): StoredConfiguration[] {
+    return this.storedConfigs.filter((v) => v.fromDIM == false)
+  }
+
   submit() {
     const name = this.settingsNameForm.get("name")?.value;
     if (!name) return; // TODO LOG ERROR

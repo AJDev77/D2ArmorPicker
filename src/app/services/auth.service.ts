@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment";
 import {Router} from "@angular/router";
-import {BehaviorSubject, Observable, ReplaySubject} from "rxjs";
+import {Observable, ReplaySubject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +56,7 @@ export class AuthService {
     const grant_type = "authorization_code";
     const TOKEN = this.authCode;
 
-    let body = `grant_type=${grant_type}&code=${TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
+      let body = `grant_type=${grant_type}&code=${TOKEN}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
     if (refresh) {
       body = `grant_type=refresh_token&refresh_token=${this.refreshToken}&client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}`;
     }
@@ -72,8 +72,11 @@ export class AuthService {
         console.log("generateTokens", value)
         this.accessToken = value.access_token;
         this.refreshToken = value.refresh_token;
+        this.membershipId = value.membership_id;
         this.refreshTokenExpiringAt = Date.now() + value.refresh_expires_in * 1000 - 10 * 1000;
         this.lastRefresh = Date.now()
+        //this.dimAPI.generateTokens()
+
         return true;
       })
       .catch(async err => {
@@ -81,6 +84,9 @@ export class AuthService {
         await this.logout();
         return false;
       });
+
+      //dimAPIService generateTokens() was here
+
   }
 
   isAuthenticated() {
@@ -115,6 +121,20 @@ export class AuthService {
     }
   }
 
+  get dimApiKey() {
+    return localStorage.getItem("dimApiKey");
+  }
+
+  set dimApiKey(newCode: string | null) {
+    if (!newCode) {
+      console.info("Clearing DIM API Key")
+      localStorage.removeItem("dimApiKey");
+    } else {
+      console.info("Setting new DIM API Key")
+      localStorage.setItem("dimApiKey", "" + newCode)
+    }
+  }
+
   get refreshToken() {
     return localStorage.getItem("refreshToken");
   }
@@ -126,6 +146,20 @@ export class AuthService {
     } else {
       console.info("Setting new refresh token")
       localStorage.setItem("refreshToken", "" + newCode)
+    }
+  }
+
+  get membershipId() {
+    return localStorage.getItem("membershipId");
+  }
+
+  set membershipId(newCode: string | null) {
+    if (!newCode) {
+      console.info("Clearing membership id token")
+      localStorage.removeItem("membershipId");
+    } else {
+      console.info("Setting new membership id token")
+      localStorage.setItem("membershipId", "" + newCode)
     }
   }
 
