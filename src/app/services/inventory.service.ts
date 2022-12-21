@@ -141,6 +141,7 @@ export class InventoryService {
     console.debug("Execute refreshAll")
     try {
       this.refreshing = true;
+      await this.auth.autoRegenerateTokens();
       let manifestUpdated = await this.updateManifest(forceManifest);
       let armorUpdated = await this.updateInventoryItems(manifestUpdated || forceArmor);
 
