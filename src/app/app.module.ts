@@ -40,6 +40,7 @@ import {DesiredModsSelectionComponent} from './components/authenticated-v2/setti
 import {VarDirectiveDirective} from './components/authenticated-v2/components/var-directive.directive';
 import {AdvancedSettingsComponent} from './components/authenticated-v2/settings/advanced-settings/advanced-settings.component';
 import {LoadAndSaveSettingsComponent} from './components/authenticated-v2/settings/load-and-save-settings/load-and-save-settings.component';
+import {LoadDimSettingsComponent} from './components/authenticated-v2/settings/load-dim-settings/load-and-save-settings.component';
 import {MatListModule} from "@angular/material/list";
 import {MatExpansionModule} from "@angular/material/expansion";
 import {ConfirmDialogComponent} from './components/authenticated-v2/components/confirm-dialog/confirm-dialog.component';
@@ -132,6 +133,7 @@ const routes: Routes = [
     VarDirectiveDirective,
     AdvancedSettingsComponent,
     LoadAndSaveSettingsComponent,
+    LoadDimSettingsComponent,
     ConfirmDialogComponent,
     ExpandedResultContentComponent,
     CountElementInListPipe,
