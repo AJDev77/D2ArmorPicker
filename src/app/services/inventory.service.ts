@@ -43,6 +43,7 @@ export class InventoryService {
   public readonly manifest: Observable<null>;
   private _inventory: ReplaySubject<null>;
   public readonly inventory: Observable<null>;
+  private workersInProg: Worker[] = []
 
   private _armorResults: BehaviorSubject<info>;
   public readonly armorResults: Observable<info>;
@@ -162,8 +163,13 @@ export class InventoryService {
     this.clearResults();
 
     if (this.updatingResults) {
-      console.warn("Called updateResults, but aborting, as it is already running.")
-      return;
+      console.warn("Called updateResults while already running, terminating previous call.")
+      this.workersInProg.forEach(w => {
+        w.terminate();
+      })
+      console.timeEnd("updateResults with WebWorker")
+      this.workersInProg = [];
+      //return;
     }
     try {
       console.time("updateResults with WebWorker")
@@ -180,6 +186,7 @@ export class InventoryService {
 
       for (let n = 0; n < nthreads; n++) {
         const worker = new Worker(new URL('./results-builder.worker', import.meta.url));
+        this.workersInProg.push(worker);
         worker.onmessage = ({data}) => {
           results.push(data.results)
           if (data.done == true) {
@@ -225,12 +232,17 @@ export class InventoryService {
             })
             console.timeEnd("updateResults with WebWorker")
             worker.terminate();
+            this.workersInProg = [];
           } else if (data.done == true && doneWorkerCount != nthreads)
             worker.terminate();
+            let index = this.workersInProg.findIndex(v => v == worker)
+            this.workersInProg.splice(index, 1);
         };
         worker.onerror = ev => {
           console.error("ERROR IN WEBWORKER, TERMINATING WEBWORKER", ev);
           worker.terminate()
+          let index = this.workersInProg.findIndex(v => v = worker)
+          this.workersInProg.splice(index, 1);
         }
         worker.postMessage({
           currentClass: this.currentClass,
