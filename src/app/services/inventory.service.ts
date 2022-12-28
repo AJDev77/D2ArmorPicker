@@ -14,6 +14,7 @@ import {ArmorSlot} from "../data/enum/armor-slot";
 import {NavigationEnd, Router} from "@angular/router";
 import {ResultDefinition} from "../components/authenticated-v2/results/results.component";
 import { DimApiService } from './dim-api.service';
+import { IInventoryArmor } from '../data/types/IInventoryArmor';
 
 type info = {
   results: ResultDefinition[],
@@ -44,6 +45,8 @@ export class InventoryService {
   private _inventory: ReplaySubject<null>;
   public readonly inventory: Observable<null>;
   private workersInProg: Worker[] = []
+
+  private customItems: IInventoryArmor[] = [];
 
   private _armorResults: BehaviorSubject<info>;
   public readonly armorResults: Observable<info>;
@@ -156,6 +159,16 @@ export class InventoryService {
     } finally {
       this.refreshing = false;
     }
+  }
+
+  async updateXurItems() {
+    let vendors = await this.api.getVendor();
+    console.log("VENDORS", vendors)
+    console.log("Vendors", Object.entries(vendors.itemComponents.stats.data!))
+    
+    //for (item of vendors.Response.itemComponents.stats.data!)
+    console.log("Vendors", vendors.itemComponents.stats.data!["300"])
+    //console.log("Vendors", vendors.Response.)
   }
 
 

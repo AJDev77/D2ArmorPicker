@@ -6,7 +6,7 @@ import {FORCE_USE_NO_EXOTIC} from "../data/constants";
 import {ModInformation} from "../data/ModInformation";
 import {ArmorPerkOrSlot, ArmorStat, SpecialArmorStat, STAT_MOD_VALUES, StatModifier} from "../data/enum/armor-stat";
 import {IManifestArmor} from "../data/types/IManifestArmor";
-import {DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
+import {DestinyClass, DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
 
 declare global {
   interface Array<T> {
@@ -330,6 +330,7 @@ addEventListener('message', async ({data}) => {
     .distinct()
     .toArray() as IInventoryArmor[])
 
+    //items.push(test)
   items = items
     // only armor :)
     .filter(item => item.slot != ArmorSlot.ArmorSlotNone)
