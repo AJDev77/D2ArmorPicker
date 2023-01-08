@@ -457,6 +457,7 @@ export class DimApiService {
               worker.postMessage({
                 currentClass: loadout.characterClass,
                 config: loadout,
+                customItems: this.bungieAPI.customItems,
                 threadSplit: {
                   count: nthreads,
                   current: n

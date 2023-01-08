@@ -50,6 +50,7 @@ import {CountElementInListPipe} from './components/authenticated-v2/results/expa
 import {ClipboardModule} from "@angular/cdk/clipboard";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {IgnoredItemsListComponent} from './components/authenticated-v2/settings/ignored-items-list/ignored-items-list.component';
+import {CustomItemsListComponent} from './components/authenticated-v2/settings/custom-items/custom-items-list.component';
 import {HelpPageComponent} from './components/authenticated-v2/subpages/help-page/help-page.component';
 import {ArmorPickerPageComponent} from './components/authenticated-v2/subpages/armor-picker-page/armor-picker-page.component';
 import {FlexLayoutModule} from "@angular/flex-layout";
@@ -138,6 +139,7 @@ const routes: Routes = [
     ExpandedResultContentComponent,
     CountElementInListPipe,
     IgnoredItemsListComponent,
+    CustomItemsListComponent,
     HelpPageComponent,
     ArmorPickerPageComponent,
     ArmorClusterPageComponent,

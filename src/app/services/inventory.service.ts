@@ -165,9 +165,11 @@ export class InventoryService {
     let vendors = await this.api.getVendor();
     console.log("VENDORS", vendors)
     console.log("Vendors", Object.entries(vendors.itemComponents.stats.data!))
+
+    
     
     //for (item of vendors.Response.itemComponents.stats.data!)
-    console.log("Vendors", vendors.itemComponents.stats.data!["300"])
+    //console.log("Vendors", vendors.itemComponents.stats.data!["300"])
     //console.log("Vendors", vendors.Response.)
   }
 
@@ -259,6 +261,7 @@ export class InventoryService {
         }
         worker.postMessage({
           currentClass: this.currentClass,
+          customItems: this.api.customItems,
           config: this._config,
           threadSplit: {
             count: nthreads,

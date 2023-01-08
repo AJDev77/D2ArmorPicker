@@ -29,6 +29,7 @@ import {ArmorPerkOrSlot} from "../data/enum/armor-stat";
   providedIn: 'root'
 })
 export class BungieApiService {
+  public customItems: IInventoryArmor[] = []
 
   constructor(private authService: AuthService, private http: HttpClient, private db: DatabaseService) {
   }
@@ -311,12 +312,12 @@ export class BungieApiService {
       destinyMembershipId: destinyMembership.membershipId,
       membershipType: destinyMembership.membershipType,
       vendorHash: 2190858386
-    });
+    }).catch();
     console.log("VENDORS", vendors)
-    console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
+    //console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
     
     //for (item of vendors.Response.itemComponents.stats.data!)
-    console.log("Vendors", vendors.Response.itemComponents.stats.data!["300"])
+    //console.log("Vendors", vendors.Response.itemComponents.stats.data!["300"])
     //console.log("Vendors", vendors.Response.)
 
     let allItems = profile.Response.profileInventory.data?.items || []
@@ -362,7 +363,7 @@ export class BungieApiService {
     //console.log("Vendors", manifestArmor)
 
     let customItems = [];
-
+    if (vendors != undefined)
     for (let item of Object.entries(vendors.Response.itemComponents.stats.data!)) {
       let stats = Object.values(item[1].stats)
       if (stats.findIndex(v => v.statHash == 392767087) != -1) {
@@ -403,7 +404,13 @@ export class BungieApiService {
       }
       //if (item[1].stats)
     }
-
+    this.customItems = customItems;
+    if (customItems.length == 0) {
+      this.customItems = JSON.parse(localStorage.getItem("xur")!) as IInventoryArmor[];
+    }
+    //localStorage.setItem("xur", JSON.stringify(customItems));
+    var storedNames = JSON.parse(localStorage.getItem("xur")!);
+    console.log("Vendors2", storedNames as IInventoryArmor[])
     console.log("Vendors", customItems);
 
     let r = allItems

@@ -7,6 +7,7 @@ import {ModInformation} from "../data/ModInformation";
 import {ArmorPerkOrSlot, ArmorStat, SpecialArmorStat, STAT_MOD_VALUES, StatModifier} from "../data/enum/armor-stat";
 import {IManifestArmor} from "../data/types/IManifestArmor";
 import {DestinyClass, DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
+import { filter } from "rxjs/operators";
 
 declare global {
   interface Array<T> {
@@ -330,6 +331,10 @@ addEventListener('message', async ({data}) => {
     .distinct()
     .toArray() as IInventoryArmor[])
 
+    let custom = data.customItems as IInventoryArmor[];
+    // filter might not matter bc we only get armor for class requested anyway
+    console.log("Vendors filtered", custom.filter(i => i.clazz.valueOf == config.characterClass.valueOf))
+    items.push(...custom.filter(i => i.clazz.valueOf == config.characterClass.valueOf))
     //items.push(test)
   items = items
     // only armor :)
