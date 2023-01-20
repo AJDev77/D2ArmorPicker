@@ -65,6 +65,19 @@ export class AppV2CoreComponent implements OnInit {
     await this.inv.refreshAll(b)
   }
 
+  /**
+   * @returns A string containing the tooltip the refresh button should display
+   */
+  refreshTooltipHelper(): string {
+    let mint = this.inv.getResponseMinted()
+    let response = "Refresh items from API"
+    if (mint) {
+      let date = new Date(mint)
+      response = response + "\nLast updated: " + date.toLocaleDateString() + " " + date.toLocaleTimeString();
+    }
+    return response;
+  }
+
   logout() {
     this.auth.logout();
   }
