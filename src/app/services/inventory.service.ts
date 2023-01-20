@@ -328,4 +328,11 @@ export class InventoryService {
       return await this.updateInventoryItems(true, errorLoop++);
     }
   }
+
+  /**
+   * @returns The time the last response from the API was minted
+   */
+  getResponseMinted(): string | null{
+    return this.api.responseMinted;
+  }
 }
