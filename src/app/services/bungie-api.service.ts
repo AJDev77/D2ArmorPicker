@@ -243,6 +243,7 @@ export class BungieApiService {
   async getVendor() {
     let destinyMembership = await this.getMembershipDataForCurrentUser();
     let characters = await this.getCharacters();
+    
 
     let vendors = await getVendor(d => this.$http(d), {
       components: [
@@ -258,6 +259,7 @@ export class BungieApiService {
       membershipType: destinyMembership.membershipType,
       vendorHash: 2190858386
     });
+    new Date(vendors.Response.vendor.data?.nextRefreshDate!) < new Date(Date.now())
     return vendors.Response;
     console.log("VENDORS", vendors)
     console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
