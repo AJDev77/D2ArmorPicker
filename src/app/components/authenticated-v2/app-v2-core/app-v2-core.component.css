@@ -14,6 +14,10 @@
   border: antiquewhite 1px solid;
 }
 
+::ng-deep .my-tooltip {
+  white-space: pre-line;
+}
+
 .sidenav-container {
   position: fixed;
   top: 0;

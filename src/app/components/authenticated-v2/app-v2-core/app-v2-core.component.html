@@ -93,7 +93,7 @@
 
 
     <button (click)="refreshAll(true)" aria-label="Refresh" class="example-icon" mat-icon-button
-            matTooltip="Reload all items from the API.">
+            [matTooltip]="refreshTooltipHelper()" matTooltipClass="my-tooltip">
       <mat-icon>refresh</mat-icon>
     </button>
 

@@ -322,6 +322,8 @@ export class BungieApiService {
     //console.log("Vendors", vendors.Response.itemComponents.stats.data!["300"])
     //console.log("Vendors", vendors.Response.)
 
+    this.responseMinted = profile.Response.responseMintedTimestamp;
+
     let allItems = profile.Response.profileInventory.data?.items || []
     for (let charI in profile.Response.characterEquipment.data) {
       let i = profile.Response.characterEquipment.data[charI].items
@@ -638,6 +640,18 @@ export class BungieApiService {
     localStorage.setItem("last-manifest-version", version)
 
     return manifestTables;
+  }
+
+  get responseMinted(): string | null {
+    let l = localStorage.getItem("destinyResponseMinted") || null;
+    return l ? l : null;
+  }
+
+  set responseMinted(newCode: string | null) {
+    if (!newCode)
+      localStorage.removeItem("destinyResponseMinted");
+    else
+      localStorage.setItem("destinyResponseMinted", newCode.toString())
   }
 
 
