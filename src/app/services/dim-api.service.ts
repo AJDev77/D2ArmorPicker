@@ -14,6 +14,7 @@ import { ModInformation } from "../data/ModInformation";
 import { AuthService } from "./auth.service";
 import { BungieApiService } from "./bungie-api.service";
 import { ConfigurationService } from "./configuration.service";
+import { CustomItemService } from "./custom-item.service";
 import { DatabaseService } from "./database.service";
 import { StatusProviderService } from "./status-provider.service";
 
@@ -44,7 +45,8 @@ export class DimApiService {
     dimLoadouts: Loadout[] = [];
 
     constructor(private auth: AuthService, private http: HttpClient, public config: ConfigurationService,
-        public status: StatusProviderService, private bungieAPI: BungieApiService, private db: DatabaseService) {
+        public status: StatusProviderService, private bungieAPI: BungieApiService, private db: DatabaseService,
+        private customItems: CustomItemService) {
             this._armorResults = new BehaviorSubject({
                 results: this.allArmorResults
               } as info)
@@ -457,7 +459,7 @@ export class DimApiService {
               worker.postMessage({
                 currentClass: loadout.characterClass,
                 config: loadout,
-                customItems: this.bungieAPI.customItems,
+                customItems: this.customItems.customItems,
                 threadSplit: {
                   count: nthreads,
                   current: n

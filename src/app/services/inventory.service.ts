@@ -14,7 +14,7 @@ import {ArmorSlot} from "../data/enum/armor-slot";
 import {NavigationEnd, Router} from "@angular/router";
 import {ResultDefinition} from "../components/authenticated-v2/results/results.component";
 import { DimApiService } from './dim-api.service';
-import { IInventoryArmor } from '../data/types/IInventoryArmor';
+import { CustomItemService } from './custom-item.service';
 
 type info = {
   results: ResultDefinition[],
@@ -46,8 +46,6 @@ export class InventoryService {
   public readonly inventory: Observable<null>;
   private workersInProg: Worker[] = []
 
-  private customItems: IInventoryArmor[] = [];
-
   private _armorResults: BehaviorSubject<info>;
   public readonly armorResults: Observable<info>;
 
@@ -55,7 +53,8 @@ export class InventoryService {
   private updatingResults: boolean = false;
 
   constructor(private db: DatabaseService, private config: ConfigurationService, private status: StatusProviderService,
-              private api: BungieApiService, private auth: AuthService, private router: Router, private dimAPI: DimApiService) {
+              private api: BungieApiService, private auth: AuthService, private router: Router, private dimAPI: DimApiService, 
+              private customItems: CustomItemService) {
     this._inventory = new ReplaySubject(1)
     this.inventory = this._inventory.asObservable();
     this._manifest = new ReplaySubject(1)
@@ -117,6 +116,14 @@ export class InventoryService {
 
         isUpdating = false;
       })
+      customItems.ob.pipe(
+        debounceTime(500)
+      ).subscribe({
+        next: (v) => {
+          console.log("Vendors: update results")
+          this.updateResults();
+        }
+      })
   }
 
   private clearResults() {
@@ -161,17 +168,17 @@ export class InventoryService {
     }
   }
 
-  async updateXurItems() {
-    let vendors = await this.api.getVendor();
-    console.log("VENDORS", vendors)
-    console.log("Vendors", Object.entries(vendors.itemComponents.stats.data!))
+  // async updateXurItems() {
+  //   let vendors = await this.api.getVendor();
+  //   console.log("VENDORS", vendors)
+  //   console.log("Vendors", Object.entries(vendors.itemComponents.stats.data!))
 
     
     
-    //for (item of vendors.Response.itemComponents.stats.data!)
-    //console.log("Vendors", vendors.itemComponents.stats.data!["300"])
-    //console.log("Vendors", vendors.Response.)
-  }
+  //   //for (item of vendors.Response.itemComponents.stats.data!)
+  //   //console.log("Vendors", vendors.itemComponents.stats.data!["300"])
+  //   //console.log("Vendors", vendors.Response.)
+  // }
 
 
   updateResults(nthreads: number = 3) {
@@ -202,6 +209,7 @@ export class InventoryService {
       for (let n = 0; n < nthreads; n++) {
         const worker = new Worker(new URL('./results-builder.worker', import.meta.url));
         this.workersInProg.push(worker);
+        console.log("Vendors: resultBuilder: ", this.customItems.customItems)
         worker.onmessage = ({data}) => {
           results.push(data.results)
           if (data.done == true) {
@@ -261,7 +269,7 @@ export class InventoryService {
         }
         worker.postMessage({
           currentClass: this.currentClass,
-          customItems: this.api.customItems,
+          customItems: this.customItems.customItems,
           config: this._config,
           threadSplit: {
             count: nthreads,

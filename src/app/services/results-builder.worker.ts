@@ -332,10 +332,10 @@ addEventListener('message', async ({data}) => {
     .toArray() as IInventoryArmor[])
 
     let custom = data.customItems as IInventoryArmor[];
-    // filter might not matter bc we only get armor for class requested anyway
-    console.log("Vendors filtered", custom.filter(i => i.clazz.valueOf == config.characterClass.valueOf))
-    items.push(...custom.filter(i => i.clazz.valueOf == config.characterClass.valueOf))
-    //items.push(test)
+    custom = custom.filter(i => i.clazz.valueOf() == config.characterClass.valueOf())
+    console.log("Vendors filtered", custom)
+    items.push(...custom)
+    
   items = items
     // only armor :)
     .filter(item => item.slot != ArmorSlot.ArmorSlotNone)

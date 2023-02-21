@@ -4,6 +4,7 @@ import {
   DestinyComponentType,
   DestinyEnergyType,
   DestinyInventoryItemDefinition,
+  DestinyVendorResponse,
   equipItem,
   getDestinyManifest,
   getDestinyManifestSlice,
@@ -240,12 +241,12 @@ export class BungieApiService {
     return result;
   }
 
-  async getVendor() {
+  async getVendor(characterID: string, vendorHash: number): Promise<DestinyVendorResponse> {
     let destinyMembership = await this.getMembershipDataForCurrentUser();
-    let characters = await this.getCharacters();
-    
+    let vendorResponse: DestinyVendorResponse
+    //let characters = await this.getCharacters();
 
-    let vendors = await getVendor(d => this.$http(d), {
+    await getVendor(d => this.$http(d), {
       components: [
         DestinyComponentType.Vendors,
       DestinyComponentType.VendorSales,
@@ -254,18 +255,23 @@ export class BungieApiService {
       DestinyComponentType.ItemCommonData,
       // TODO: We should try to defer this until the popup is open!
       ],
-      characterId: characters[0].characterId,
+      characterId: characterID,
       destinyMembershipId: destinyMembership.membershipId,
       membershipType: destinyMembership.membershipType,
-      vendorHash: 2190858386
+      vendorHash: vendorHash
+    }).catch(e => {
+      throw new Error("Vendor not available.")
+    }).then(o => {
+      vendorResponse = o!.Response
     });
-    new Date(vendors.Response.vendor.data?.nextRefreshDate!) < new Date(Date.now())
-    return vendors.Response;
-    console.log("VENDORS", vendors)
-    console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
+    return vendorResponse!;
+    //new Date(vendors.Response.vendor.data?.nextRefreshDate!) < new Date(Date.now())
+    //return vendors.Response;
+    // console.log("VENDORS", vendors)
+    // console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
     
-    //for (item of vendors.Response.itemComponents.stats.data!)
-    console.log("Vendors", vendors.Response.itemComponents.stats.data!["300"])
+    // //for (item of vendors.Response.itemComponents.stats.data!)
+    // console.log("Vendors", vendors.Response.itemComponents.stats.data!["300"])
     //console.log("Vendors", vendors.Response.)
 
   }
@@ -299,23 +305,7 @@ export class BungieApiService {
       destinyMembershipId: destinyMembership.membershipId
     });
 
-    let characters = await this.getCharacters();
-
-    let vendors = await getVendor(d => this.$http(d), {
-      components: [
-        DestinyComponentType.Vendors,
-      DestinyComponentType.VendorSales,
-      DestinyComponentType.ItemInstances,
-      DestinyComponentType.ItemStats,
-      DestinyComponentType.ItemCommonData,
-      // TODO: We should try to defer this until the popup is open!
-      ],
-      characterId: characters[0].characterId,
-      destinyMembershipId: destinyMembership.membershipId,
-      membershipType: destinyMembership.membershipType,
-      vendorHash: 2190858386
-    }).catch();
-    console.log("VENDORS", vendors)
+    
     //console.log("Vendors", Object.entries(vendors.Response.itemComponents.stats.data!))
     
     //for (item of vendors.Response.itemComponents.stats.data!)
@@ -361,61 +351,17 @@ export class BungieApiService {
     const cx = manifestArmor.filter(d => ids.indexOf(d.hash) > -1)
     const modsData = manifestArmor.filter(d => d.itemType == 19)
     let res = Object.fromEntries(cx.map((_) => [_.hash, _]))
-    let res2 = Object.fromEntries(manifestArmor.map((_) => [_.hash, _]))
+    //let res2 = Object.fromEntries(manifestArmor.map((_) => [_.hash, _]))
     let mods = Object.fromEntries(modsData.map((_) => [_.hash, _]))
 
-    //console.log("Vendors", manifestArmor)
 
-    let customItems = [];
-    if (vendors != undefined)
-    for (let item of Object.entries(vendors.Response.itemComponents.stats.data!)) {
-      let stats = Object.values(item[1].stats)
-      if (stats.findIndex(v => v.statHash == 392767087) != -1) {
-        let test = vendors.Response.sales.data![item[0]]
-        console.log("Vendor res", test.itemHash)
-        let testItem: IInventoryArmor = {
-          id: 0,
-          itemInstanceId: '',
-          masterworked: false,
-          mayBeBugged: false,
-          mobility: stats.find(v => v.statHash == 2996146975)!.value,
-          resilience: stats.find(v => v.statHash == 392767087)!.value,
-          recovery: stats.find(v => v.statHash == 1943323491)!.value,
-          discipline: stats.find(v => v.statHash == 1735777505)!.value,
-          intellect: stats.find(v => v.statHash == 144602215)!.value,
-          strength: stats.find(v => v.statHash == 4244567218)!.value,
-          energyLevel: 0,
-          energyAffinity: DestinyEnergyType.Any,
-          statPlugHashes: [],
-          hash: test.itemHash,
-          name: res2[test.itemHash].name + "(Xur)",
-          icon: res2[test.itemHash].icon,
-          description: res2[test.itemHash].description,
-          watermarkIcon: res2[test.itemHash].watermarkIcon,
-          slot: res2[test.itemHash].slot,
-          clazz: res2[test.itemHash].clazz,
-          perk: res2[test.itemHash].perk,
-          isExotic: res2[test.itemHash].isExotic,
-          rarity: res2[test.itemHash].isExotic,
-          exoticPerkHash: res2[test.itemHash].exoticPerkHash,
-          armor2: res2[test.itemHash].armor2,
-          isSunset: res2[test.itemHash].isSunset,
-          itemType: res2[test.itemHash].itemType,
-          itemSubType: res2[test.itemHash].itemSubType,
-          investmentStats: res2[test.itemHash].investmentStats
-        }
-        customItems.push(testItem);
-      }
-      //if (item[1].stats)
-    }
-    this.customItems = customItems;
-    if (customItems.length == 0) {
-      this.customItems = JSON.parse(localStorage.getItem("xur")!) as IInventoryArmor[];
-    }
+    // if (customItems.length == 0) {
+    //   this.customItems = JSON.parse(localStorage.getItem("xur")!) as IInventoryArmor[];
+    // }
     //localStorage.setItem("xur", JSON.stringify(customItems));
-    var storedNames = JSON.parse(localStorage.getItem("xur")!);
-    console.log("Vendors2", storedNames as IInventoryArmor[])
-    console.log("Vendors", customItems);
+    //var storedNames = JSON.parse(localStorage.getItem("xur")!);
+    //console.log("Vendors2", storedNames as IInventoryArmor[])
+    //console.log("Vendors", customItems);
 
     let r = allItems
       //.filter(d => ids.indexOf(d.itemHash) > -1)
