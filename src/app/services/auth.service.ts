@@ -81,7 +81,7 @@ export class AuthService {
       })
       .catch(async err => {
         console.log({err})
-        await this.logout();
+        //await this.logout();
         return false;
       });
 

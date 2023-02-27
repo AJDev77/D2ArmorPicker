@@ -25,7 +25,7 @@ export class CustomItemService {
     }
 
     async refreshXurArmor() {
-      //let same = true;
+      let vendorAvailable = true;
         if (localStorage.getItem("vendorArmor") != null) {
             this.vendorArmor = new Map(Object.entries(JSON.parse(localStorage.getItem("vendorArmor")!)));
             let xur = this.vendorArmor.get("2190858386");
@@ -67,16 +67,17 @@ export class CustomItemService {
      })
      .catch(e => {
        console.log("Vendor unavailable: ", e)
-        return;
+       vendorAvailable = false;
       })
   
       //remove duplicates
       //this.customItems = [...new Set(this.customItems)];
-
-     let res: vendorArmorResponse = {nextRefresh: refreshDate!, items: this.customItems}
-      this.vendorArmor.set("2190858386", res)
-      localStorage.setItem("vendorArmor", JSON.stringify(Object.fromEntries(this.vendorArmor)));
-      this.ob.next(this.customItems);
+      if (vendorAvailable) {
+        let res: vendorArmorResponse = {nextRefresh: refreshDate!, items: this.customItems}
+        this.vendorArmor.set("2190858386", res)
+        localStorage.setItem("vendorArmor", JSON.stringify(Object.fromEntries(this.vendorArmor)));
+        this.ob.next(this.customItems);
+      }
     }
 
     async convertVendorResponse(res: DestinyVendorResponse): Promise<IInventoryArmor[]> {
@@ -127,4 +128,17 @@ export class CustomItemService {
       }
       return result;
     }
+
+    // doVendorsNeedRefresh(): boolean {
+    //   if (localStorage.getItem("vendorArmor") != null) {
+    //     this.vendorArmor = new Map(Object.entries(JSON.parse(localStorage.getItem("vendorArmor")!)));
+    //     let xur = this.vendorArmor.get("2190858386");
+    //     if (xur != undefined) {
+    //         if (new Date(xur.nextRefresh) > new Date(Date.now())) {
+    //         }
+    //       }
+    //     } else {
+    //       return false;
+    //     }
+    // }
   }

@@ -23,7 +23,13 @@ export interface DimConfiguration {
     name: string;
     dimID: string;
     dimLastUpdated: number | undefined;
-  }
+}
+
+export interface DimStatCheckResult {
+  maxTiers: number[],
+  lowestModCost: number,
+  armor: any[] //(TODO: make type)
+}
 
   type info = {
   results: ResultDefinition[],
@@ -319,6 +325,7 @@ export class DimApiService {
               } else if (foundMod[0] == ArmorStat.Strength) {
                 strength += foundMod[1]
               }
+              // this mod was general, so skip checking it further
               continue;
             }
             //}
@@ -397,7 +404,7 @@ export class DimApiService {
 
     // Start experimental auto refresh
     checkLoadoutStats(nthreads: number = 3, loadout: BuildConfiguration) {
-        return new Promise<number[]>((resolve, reject) => {
+        return new Promise<DimStatCheckResult>((resolve, reject) => {
         try {
             console.time("autoRefresh loadouts with WebWorker")
             let doneWorkerCount = 0;
@@ -429,7 +436,23 @@ export class DimApiService {
                               p[k] = v[k];
                       return p;
                   }, [0, 0, 0, 0, 0, 0]).map(k => Math.floor(Math.min(100, k) / 10))
-                  resolve(maxTier);
+
+                  //find lowest mod cost
+                  let lowestCost: number = Infinity;
+                  //let usesLimited: boolean = false;
+                  for (let i = 0; i < data.results.length; i++) {
+                    if (data.results[i].modCost < lowestCost) {
+                      lowestCost = data.results[i].modCost;
+                    }
+                    // for (let items of data.results[i].items) {
+                    //     console.log("DIM", this.customItems.customItems, items[0].name)
+                    //     if (this.customItems.customItems.find((e) => e.name === items[0].name) != undefined) {
+                    //       usesLimited = true;
+                    //     }
+                    // }
+                  }
+
+                  resolve({maxTiers: maxTier, lowestModCost: lowestCost, armor: data.results});
 
                   this._armorResults.next({
                       results: endResults,
@@ -471,4 +494,20 @@ export class DimApiService {
         })
 
       }
+      getModCost(loadoutID: string): number {
+        let modCost: number = 0;
+        let loadout = this.dimLoadouts.find(e => e.id == loadoutID)
+        if (loadout != undefined) {
+          if (loadout.parameters?.mods != undefined) {
+            for (let mod of loadout.parameters?.mods) {
+              let foundMod = Object.values(STAT_MOD_VALUES).find((v) => v[3] == mod)
+          
+              if (foundMod != undefined) {
+                  modCost += foundMod[2]
+              }
+            }
+        }
+      }
+      return modCost
+    }
 }

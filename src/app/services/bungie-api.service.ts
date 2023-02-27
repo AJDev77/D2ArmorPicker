@@ -69,7 +69,7 @@ export class BungieApiService {
         console.error(err);
         if (err.error?.ErrorStatus == "SystemDisabled") {
           console.info("System is disabled. Revoking auth, must re-login")
-          await this.authService.logout();
+          //await this.authService.logout();
         }
         if (err.ErrorStatus != "Internal Server Error") {
           console.info("API-Error")
@@ -82,7 +82,7 @@ export class BungieApiService {
   async getCharacters() {
     let destinyMembership = await this.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      //await this.authService.logout();
       return [];
     }
 
@@ -107,7 +107,7 @@ export class BungieApiService {
   async transferItem(itemInstanceId: string, targetCharacter: string, equip = false): Promise<boolean> {
     let destinyMembership = await this.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      //await this.authService.logout();
       return false;
     }
 
@@ -166,7 +166,7 @@ export class BungieApiService {
     console.info("moveItemToVault", itemInstanceId)
     let destinyMembership = await this.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      //await this.authService.logout();
       return;
     }
 
@@ -283,7 +283,7 @@ export class BungieApiService {
           return;
     let destinyMembership = await this.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      //await this.authService.logout();
       return;
     }
 

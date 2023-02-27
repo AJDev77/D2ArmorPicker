@@ -97,7 +97,7 @@ export class InventoryService {
       )
       .subscribe(async c => {
         if (this.auth.refreshTokenExpired || !await this.auth.autoRegenerateTokens()) {
-          await this.auth.logout();
+          //await this.auth.logout();
           return;
         }
         if (!auth.isAuthenticated())
