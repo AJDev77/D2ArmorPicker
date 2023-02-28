@@ -204,6 +204,9 @@ export class BungieApiService {
     let response = await getMembershipDataForCurrentUser(d => this.$http(d));
     let memberships = response?.Response.destinyMemberships;
     console.info("Memberships:", memberships)
+    if (memberships == undefined && membershipData) {
+      return membershipData
+    }
     memberships = memberships.filter(m => m.crossSaveOverride == 0 || m.crossSaveOverride == m.membershipType);
     console.info("Filtered Memberships:", memberships)
 
@@ -485,7 +488,10 @@ export class BungieApiService {
       if (localStorage.getItem("last-manifest-revision") == environment.revision) {
         if (Date.now() - Number.parseInt(localStorage.getItem("LastManifestUpdate") || "0") > 1000 * 3600 * 0.25) {
           destinyManifest = await getDestinyManifest(d => this.$http(d));
-          const version = destinyManifest.Response.version;
+          let version = destinyManifest.Response.version;
+          if (version == undefined) {
+            version = localStorage.getItem("last-manifest-version")!
+          }
           if (localStorage.getItem("last-manifest-version") == version) {
             console.debug("bungieApiService - updateManifest", "Abort updateManifest due to fitting ManifestVersion")
             return;
@@ -501,6 +507,9 @@ export class BungieApiService {
 
     if (destinyManifest == null)
       destinyManifest = await getDestinyManifest(d => this.$http(d));
+    if (destinyManifest == null) {
+      return
+    }
     const version = destinyManifest.Response.version;
 
     const manifestTables = await getDestinyManifestSlice(d => this.$httpWithoutKey(d), {

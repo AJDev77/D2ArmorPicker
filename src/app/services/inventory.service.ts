@@ -98,10 +98,11 @@ export class InventoryService {
       .subscribe(async c => {
         if (this.auth.refreshTokenExpired || !await this.auth.autoRegenerateTokens()) {
           //await this.auth.logout();
-          return;
+         //this.updateResults()
+          //return;
         }
         if (!auth.isAuthenticated())
-          return;
+          //return;
 
         dimAPI.autoRegenerateTokens();
 
@@ -209,7 +210,7 @@ export class InventoryService {
       for (let n = 0; n < nthreads; n++) {
         const worker = new Worker(new URL('./results-builder.worker', import.meta.url));
         this.workersInProg.push(worker);
-        console.log("Vendors: resultBuilder: ", this.customItems.customItems)
+        console.log("Vendors: resultBuilder: ", this.customItems.getCustomItems())
         worker.onmessage = ({data}) => {
           results.push(data.results)
           if (data.done == true) {
@@ -269,7 +270,7 @@ export class InventoryService {
         }
         worker.postMessage({
           currentClass: this.currentClass,
-          customItems: this.customItems.customItems,
+          customItems: this.customItems.getCustomItems(),
           config: this._config,
           threadSplit: {
             count: nthreads,
@@ -340,8 +341,9 @@ export class InventoryService {
       return !!r;
     } catch (e) {
       // After three tries, call it a day.
-      if (errorLoop > 3) {
+      if (errorLoop > 2) {
         alert("You encountered a strange error with the inventory update. Please log out and log in again. If that does not fix it, please message Mijago.");
+        this.status.modifyStatus(s => s.updatingInventory = false);
         return false;
       }
 
@@ -349,7 +351,7 @@ export class InventoryService {
       console.error(e)
       console.warn("Automatically re-fetching manifest")
       await this.updateManifest(true);
-      return await this.updateInventoryItems(true, errorLoop++);
+      return await this.updateInventoryItems(true, errorLoop+1);
     }
   }
 

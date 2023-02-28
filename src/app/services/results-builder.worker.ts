@@ -565,33 +565,36 @@ addEventListener('message', async ({data}) => {
             if (!energyCheckResult.valid) continue;
             requiredClassElement = energyCheckResult.requiredClassItemElement;
           }
-
-
-          const result = handlePermutation(runtime, config, helmet, gauntlet, chest, leg,
-            constantBonus, constantAvailableModslots.slice(), doNotOutput);
-          // Only add 50k to the list if the setting is activated.
-          // We will still calculate the rest so that we get accurate results for the runtime values
-          if (result != null) {
-            totalResults++;
-            if (result !== "DONOTSEND") {
-              result["classItem"] = {
-                perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None,
-                affinity: requiredClassElement,
+          for (let i = 0; i < 6; i++) {
+            let newConstantBonus = [...constantBonus];
+            newConstantBonus[i] += 3
+            const result = handlePermutation(runtime, config, helmet, gauntlet, chest, leg,
+              newConstantBonus, constantAvailableModslots.slice(), doNotOutput);
+            // Only add 50k to the list if the setting is activated.
+            // We will still calculate the rest so that we get accurate results for the runtime values
+            if (result != null) {
+              totalResults++;
+              if (result !== "DONOTSEND") {
+                result["classItem"] = {
+                  perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None,
+                  affinity: requiredClassElement,
+                }
+  
+                results.push(result)
+                resultsLength++;
+                listedResults++;
+                doNotOutput = doNotOutput || (config.limitParsedResults && listedResults >= 5e4 / threadSplit.count) || listedResults >= 1e6 / threadSplit.count
               }
-
-              results.push(result)
-              resultsLength++;
-              listedResults++;
-              doNotOutput = doNotOutput || (config.limitParsedResults && listedResults >= 5e4 / threadSplit.count) || listedResults >= 1e6 / threadSplit.count
+            }
+            //}
+            if (resultsLength >= 5000) {
+              // @ts-ignore
+              postMessage({runtime, results, done: false, total: 0});
+              results = []
+              resultsLength = 0;
             }
           }
-          //}
-          if (resultsLength >= 5000) {
-            // @ts-ignore
-            postMessage({runtime, results, done: false, total: 0});
-            results = []
-            resultsLength = 0;
-          }
+          
         }
       }
     }

@@ -482,7 +482,7 @@ export class DimApiService {
               worker.postMessage({
                 currentClass: loadout.characterClass,
                 config: loadout,
-                customItems: this.customItems.customItems,
+                customItems: this.customItems.getCustomItems(),
                 threadSplit: {
                   count: nthreads,
                   current: n

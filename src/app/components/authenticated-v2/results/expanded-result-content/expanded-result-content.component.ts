@@ -340,6 +340,29 @@ export class ExpandedResultContentComponent implements OnInit, OnDestroy {
     window.open(this.DIMUrl, "blank")
   }
 
+  findClassArtifice(): String {
+    for (let i = 0; i < 6; i++) {
+      let total = this.element?.stats[i]
+      if ((total! - this.element?.statsNoMods[i]!) % 5 != 0) {
+        switch(i) {
+          case 0: 
+            return "(+3 mobility)"
+          case 1:
+            return "(+3 resilience)"
+          case 2:
+            return "(+3 recovery)"
+          case 3:
+            return "(+3 discipline)"
+          case 4:
+            return "(+3 intellect)"
+          case 5:
+            return "(+3 strength)"
+        }
+      }
+    }
+    return ""
+  }
+
   getTiersForStat(statId: number) {
     return Math.floor((this.element?.stats[statId] || 0) / 10);
   }

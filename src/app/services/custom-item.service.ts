@@ -2,6 +2,8 @@ import { Injectable } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { DestinyEnergyType, DestinyVendorResponse } from "bungie-api-ts/destiny2";
 import { Subject } from "rxjs";
+import { ArmorSlot } from "../data/enum/armor-slot";
+import { ArmorPerkOrSlot } from "../data/enum/armor-stat";
 import { IInventoryArmor } from "../data/types/IInventoryArmor";
 import { BungieApiService } from "./bungie-api.service";
 import { ConfigurationService } from "./configuration.service";
@@ -19,9 +21,61 @@ export interface vendorArmorResponse {
 export class CustomItemService {
     ob: Subject<IInventoryArmor[]> = new Subject<IInventoryArmor []>();
     customItems: IInventoryArmor[] = [];
+    artificeItems: IInventoryArmor[] = []
+    
     vendorArmor = new Map<string, vendorArmorResponse>();
     constructor(private config: ConfigurationService, private db: DatabaseService, private api: BungieApiService) {
         console.log("Vendors: new insrtance of custom items")
+        this.refreshArtificeCombos()
+    }
+
+    getCustomItems(): IInventoryArmor[] {
+      let allCustomItems: IInventoryArmor[] = []
+      allCustomItems.push(...this.artificeItems)
+      this.vendorArmor.forEach((e) => {
+        allCustomItems.push(...e.items)
+      })
+      return allCustomItems
+    }
+
+    async refreshArtificeCombos() {
+      this.artificeItems = []
+      const inventoryArmor = await this.db.inventoryArmor.filter((e) => e.perk == ArmorPerkOrSlot.SlotArtificer && e.slot != ArmorSlot.ArmorSlotClass).toArray()
+      console.log("Artifice:", inventoryArmor)
+      inventoryArmor.forEach((e) => {
+        //make 6 copies, add different +3 to each
+        for (let i = 0; i < 6; i++) {
+          let copy: IInventoryArmor = JSON.parse(JSON.stringify(e));
+          switch(i) {
+            case 0:
+              copy.name += " (+3 mobility)"
+              copy.mobility += 3
+              break;
+            case 1:
+              copy.name += " (+3 resilience)"
+              copy.resilience += 3
+              break;
+            case 2:
+              copy.name += " (+3 recovery)"
+              copy.recovery += 3
+              break;
+            case 3:
+              copy.name += " (+3 discipline)"
+              copy.discipline += 3
+              break;
+            case 4: 
+              copy.name += " (+3 intellect)"
+              copy.intellect += 3
+              break;
+            case 5:
+              copy.name += " (+3 strength)"
+              copy.strength += 3
+              break;
+          }
+          this.artificeItems.push(copy);
+        }
+      })
+      this.ob.next()
     }
 
     async refreshXurArmor() {
@@ -33,7 +87,7 @@ export class CustomItemService {
                 if (new Date(xur.nextRefresh) > new Date(Date.now())) {
                     // shouldn't need to refresh
                     console.log("Vendors: don't need to refresh", xur.nextRefresh, " ", new Date(Date.now()))
-                    this.customItems = xur.items;
+                    //this.customItems = xur.items;
                     Promise.resolve();
                     return;
                 }

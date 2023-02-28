@@ -43,7 +43,7 @@ export class CustomItemsListComponent implements OnInit, OnDestroy {
     this.config.configuration
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(async c => {
-        if (c.characterClass != this.currentClass || this.customItems.customItems.length == 0) {
+        if (c.characterClass != this.currentClass) {
           this.currentClass = c.characterClass;
           await this.refreshVendorArmor();
         }
@@ -64,8 +64,8 @@ export class CustomItemsListComponent implements OnInit, OnDestroy {
     await this.customItems.refreshXurArmor();
   }
 
-  getCustomItems(): IInventoryArmor [] {
-    return this.customItems.customItems;
+  getCustomItems(): IInventoryArmor[] {
+    return this.customItems.getCustomItems()
   }
 
 

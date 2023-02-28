@@ -12,6 +12,7 @@ import { ArmorStat } from 'src/app/data/enum/armor-stat';
 import { FixableSelection } from 'src/app/data/buildConfiguration';
 import { EnumDictionary } from 'src/app/data/types/EnumDictionary';
 import { CustomItemService } from 'src/app/services/custom-item.service';
+import { IInventoryArmor } from 'src/app/data/types/IInventoryArmor';
 
 export interface dimHigherResult {
   id: string,
@@ -313,7 +314,8 @@ export class LoadDimSettingsComponent implements OnInit, OnDestroy {
     let index = 0
 
     while (index < items.length && !foundLimited) {
-      if (this.custom.customItems.find((e) => e.name === items[index].name) != undefined) {
+      let customItems: IInventoryArmor[] = this.custom.getCustomItems()
+      if (customItems.find((e) => e.name === items[index].name) != undefined) {
         foundLimited = true;
       }
       index++;
