@@ -48,6 +48,7 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
     let voidFragments = modifiers.filter(value => value.type == ModifierType.Void);
     let solarFragments = modifiers.filter(value => value.type == ModifierType.Solar);
     let arcFragments = modifiers.filter(value => value.type == ModifierType.Arc);
+    let strandFragments = modifiers.filter(value => value.type == ModifierType.Strand);
 
     this.data = [
       {name: "Combat Style Mods", data: combatStyleMods, group: false, type: ModifierType.CombatStyleMod},
@@ -55,6 +56,7 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
       {name: "Void Fragments", data: voidFragments, group: true, type: ModifierType.Void},
       {name: "Solar Fragments", data: solarFragments, group: true, type: ModifierType.Solar},
       {name: "Arc Fragments", data: arcFragments, group: true, type: ModifierType.Arc},
+      {name: "Strand Fragments", data: strandFragments, group: true, type: ModifierType.Strand}
     ]
 
     this.dataSource = modifiers;

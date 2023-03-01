@@ -35,6 +35,7 @@ export enum ModOrAbility {
   EchoOfHarvest,
   EchoOfObscurity, //+10rec
   EchoOfStarvation,
+  EchoOfVigilance,
 
   // SOLAR
   EmberOfBenelovence = 1300,
@@ -47,6 +48,7 @@ export enum ModOrAbility {
   EmberOfWonder,
   EmberOfSearing,
   EmberOfTorches,
+  EmberOfMercy,
   //EchoOfExchange ,
   //EchoOfRemnants,
   //EchoOfReprisal,
@@ -59,7 +61,17 @@ export enum ModOrAbility {
   SparkOfResistance,
   SparkOfShock,
 
+  ThreadOfAscent = 1500,
+  ThreadOfBinding,
+  ThreadOfContinuity,
+  ThreadOfEvolution,
+  ThreadOfFinality,
+  ThreadOfFury,
+  ThreadOfGeneration,
+  ThreadOfTransmutation,
+  ThreadOfWarding,
+
   // Artifact mods,
-  MobileRetrofit = 1500, // +5 Mobility
+  MobileRetrofit = 1600, // +5 Mobility
   ResilientRetrofit, // +5 Resilience
 }

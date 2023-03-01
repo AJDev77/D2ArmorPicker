@@ -303,6 +303,16 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 2661180603
   },
+  [ModOrAbility.EchoOfVigilance]: {
+    id: ModOrAbility.EchoOfVigilance,
+    name: "Echo of Vigilance",
+    description: "Defeating a target when your shields are depleted, grants you a temporary Void overshield.",
+    type: ModifierType.Void,
+    bonus: [{stat: ArmorStat.Recovery, value: -10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3854948621
+  },
   // SOLAR
   [ModOrAbility.EmberOfBenelovence]: {
     id: ModOrAbility.EmberOfBenelovence,
@@ -405,6 +415,16 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 362132288
   },
+  [ModOrAbility.EmberOfMercy]: {
+    id: ModOrAbility.EmberOfMercy,
+    name: "Ember of Mercy",
+    description: "When you revive an ally, you and other nearby allies gain Restoration. Picking up a Solar Flare grants Restoration.",
+    type: ModifierType.Solar,
+    bonus: [{stat: ArmorStat.Resilience , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4180586737
+  },
   /** ARC **/
 
   [ModOrAbility.SparkOfBrilliance]: {
@@ -477,6 +497,98 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 1727069364
   },
+  // Strand
+  [ModOrAbility.ThreadOfAscent]: {
+    id: ModOrAbility.ThreadOfAscent,
+    name: "Thread Of Ascent",
+    description: "Activating your grenade ability reloads your equipped weapon and grants bonus airborne effectiveness and handling for a short duration.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Mobility , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512216
+  },
+  [ModOrAbility.ThreadOfBinding]: {
+    id: ModOrAbility.ThreadOfBinding,
+    name: "Thread Of Binding",
+    description: "Super final blows emit a suspending burst from the target.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Resilience , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552688
+  },
+  [ModOrAbility.ThreadOfContinuity]: {
+    id: ModOrAbility.ThreadOfContinuity,
+    name: "Thread Of Continuity",
+    description: "Suspend, unravel, and sever effects applied to targets have increased duration.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Strength , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552690
+  },
+  [ModOrAbility.ThreadOfEvolution]: {
+    id: ModOrAbility.ThreadOfEvolution,
+    name: "Thread Of Evolution",
+    description: "Threadlings travel farther and deal additional damage.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Intellect , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512211
+  },
+  [ModOrAbility.ThreadOfFinality]: {
+    id: ModOrAbility.ThreadOfFinality,
+    name: "Thread Of Finality",
+    description: "Finisher final blows create Threadlings.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Recovery , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512217
+  },
+  [ModOrAbility.ThreadOfFury]: {
+    id: ModOrAbility.ThreadOfFury,
+    name: "Thread Of Fury",
+    description: "Damaging targets with a Tangle grants melee energy.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Strength , value: -10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512219
+  },
+  [ModOrAbility.ThreadOfGeneration]: {
+    id: ModOrAbility.ThreadOfGeneration,
+    name: "Thread Of Generation",
+    description: "Dealing damage generates grenade energy.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Discipline , value: -10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552691
+  },
+  [ModOrAbility.ThreadOfTransmutation]: {
+    id: ModOrAbility.ThreadOfTransmutation,
+    name: "Thread Of Transmutation",
+    description: "While you have Woven Mail, weapon final blows create a Tangle.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Strength , value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512221
+  },
+  [ModOrAbility.ThreadOfWarding]: {
+    id: ModOrAbility.ThreadOfWarding,
+    name: "Thread Of Warding",
+    description: "Picking up an Orb of Power grants Woven Mail.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Resilience , value: -10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 4208512222
+  },
+
   // Retrofit mods
   [ModOrAbility.MobileRetrofit]: {
     id: ModOrAbility.MobileRetrofit,
