@@ -125,6 +125,9 @@ export class InventoryService {
           this.updateResults();
         }
       })
+      this.inventory.subscribe((e) => {
+        this.customItems.invUpdate.next();
+      })
   }
 
   private clearResults() {
@@ -158,7 +161,9 @@ export class InventoryService {
       let armorUpdated = await this.updateInventoryItems(manifestUpdated || forceArmor);
 
       // trigger armor update behaviour
-      if (armorUpdated) this._inventory.next(null);
+      if (armorUpdated) {
+        this._inventory.next(null);
+      }
 
       // Do not update results in Help and Cluster pages
       if (this.shouldCalculateResults()) {
@@ -187,9 +192,10 @@ export class InventoryService {
 
     if (this.updatingResults) {
       console.warn("Called updateResults while already running, terminating previous call.")
-      this.workersInProg.forEach(w => {
-        w.terminate();
-      })
+      for (let i = 0; i < this.workersInProg.length; i++) {
+        console.log("terminating worker", this.workersInProg[i])
+        this.workersInProg[i].terminate()
+      }
       console.timeEnd("updateResults with WebWorker")
       this.workersInProg = [];
       //return;
@@ -257,10 +263,11 @@ export class InventoryService {
             console.timeEnd("updateResults with WebWorker")
             worker.terminate();
             this.workersInProg = [];
-          } else if (data.done == true && doneWorkerCount != nthreads)
+          } else if (data.done == true && doneWorkerCount != nthreads) {
             worker.terminate();
             let index = this.workersInProg.findIndex(v => v == worker)
             this.workersInProg.splice(index, 1);
+          }
         };
         worker.onerror = ev => {
           console.error("ERROR IN WEBWORKER, TERMINATING WEBWORKER", ev);
@@ -342,7 +349,7 @@ export class InventoryService {
     } catch (e) {
       // After three tries, call it a day.
       if (errorLoop > 2) {
-        alert("You encountered a strange error with the inventory update. Please log out and log in again. If that does not fix it, please message Mijago.");
+        alert("The API isn't working right now, so your inventory may not be up-to-date.");
         this.status.modifyStatus(s => s.updatingInventory = false);
         return false;
       }

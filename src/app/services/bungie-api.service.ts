@@ -434,8 +434,9 @@ export class BungieApiService {
             let statData = profile.Response.itemComponents.perks.data || {};
             let perks = (statData[d.itemInstanceId || ""] || {})["perks"] || []
             const hasPerk = perks.filter(p => p.perkHash == 229248542).length > 0;
-            if (!hasPerk)
+            if (!hasPerk) {
               r.perk = ArmorPerkOrSlot.None
+            }
           }
           return r as IInventoryArmor
         }
@@ -452,7 +453,7 @@ export class BungieApiService {
 
 
   private getArmorPerk(v: DestinyInventoryItemDefinition): ArmorPerkOrSlot {
-    if ((v.sockets?.socketEntries.filter(d => d.reusablePlugSetHash == 1212) || []).length > 0)
+    if ((v.sockets?.socketEntries.filter(d => d.reusablePlugSetHash == 1259) || []).length > 0)
       return ArmorPerkOrSlot.SlotArtificer;
 
     if ((v.sockets?.socketEntries.filter(d => d.singleInitialItemHash == 1728096240) || []).length > 0)
@@ -488,6 +489,9 @@ export class BungieApiService {
       if (localStorage.getItem("last-manifest-revision") == environment.revision) {
         if (Date.now() - Number.parseInt(localStorage.getItem("LastManifestUpdate") || "0") > 1000 * 3600 * 0.25) {
           destinyManifest = await getDestinyManifest(d => this.$http(d));
+          if (destinyManifest == null) {
+            return
+          }
           let version = destinyManifest.Response.version;
           if (version == undefined) {
             version = localStorage.getItem("last-manifest-version")!

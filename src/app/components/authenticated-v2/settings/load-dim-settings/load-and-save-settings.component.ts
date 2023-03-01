@@ -280,7 +280,7 @@ export class LoadDimSettingsComponent implements OnInit, OnDestroy {
       for (let i = 0; i < tiers.length; i++) {
         tiers[i] = Math.floor((tiers[i] / 10))
       }
-      console.log("DIM TIERS:", tiers)
+      //console.log("DIM TIERS:", tiers)
       if (compResult.modCost < realModCost || !this.tiersMatch(tiers, actualTiers)) {
         // change to while
         if (this.containsLimitedArmor(compResult.items)) {
@@ -314,7 +314,7 @@ export class LoadDimSettingsComponent implements OnInit, OnDestroy {
     let index = 0
 
     while (index < items.length && !foundLimited) {
-      let customItems: IInventoryArmor[] = this.custom.getCustomItems()
+      let customItems: IInventoryArmor[] = this.custom.getVendorItems()
       if (customItems.find((e) => e.name === items[index].name) != undefined) {
         foundLimited = true;
       }

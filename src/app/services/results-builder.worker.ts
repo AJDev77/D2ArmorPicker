@@ -314,7 +314,15 @@ function prepareConstantAvailableModslots(config: BuildConfiguration) {
   return availableModCost.where(d => d > 0).sort()
 }
 
-addEventListener('message', async ({data}) => {
+var currentTask = {
+  cancel: false
+}
+
+onmessage = event => {
+    performTask(currentTask, event.data)
+}
+
+async function performTask(task:any, data: any) {
   const startTime = Date.now();
   console.debug("START RESULTS BUILDER 2")
   console.time("total")
@@ -573,13 +581,16 @@ addEventListener('message', async ({data}) => {
             // Only add 50k to the list if the setting is activated.
             // We will still calculate the rest so that we get accurate results for the runtime values
             if (result != null) {
+              if (results.find((e) => e.modCost == result.modCost && e.modCount == result.modCount 
+              && e.stats[0] == result.stats[0] && e.stats[1] == result.stats[1] && e.stats[2] == result.stats[2] 
+              && e.stats[3] == result.stats[3] && e.stats[4] == result.stats[4] && e.stats[5] == result.stats[5]) == undefined){
               totalResults++;
               if (result !== "DONOTSEND") {
                 result["classItem"] = {
                   perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None,
                   affinity: requiredClassElement,
                 }
-  
+
                 results.push(result)
                 resultsLength++;
                 listedResults++;
@@ -593,6 +604,7 @@ addEventListener('message', async ({data}) => {
               results = []
               resultsLength = 0;
             }
+          }
           }
           
         }
@@ -616,7 +628,8 @@ addEventListener('message', async ({data}) => {
       totalTime: Date.now() - startTime
     }
   });
-})
+
+}
 
 function getStatSum(items: ItemCombination[]): [number, number, number, number, number, number] {
   let count = 0;

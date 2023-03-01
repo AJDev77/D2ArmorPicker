@@ -8,6 +8,7 @@ import { IInventoryArmor } from "../data/types/IInventoryArmor";
 import { BungieApiService } from "./bungie-api.service";
 import { ConfigurationService } from "./configuration.service";
 import { DatabaseService } from "./database.service";
+import { StatusProviderService } from "./status-provider.service";
 
 export interface vendorArmorResponse {
     nextRefresh: Date,
@@ -20,18 +21,37 @@ export interface vendorArmorResponse {
 
 export class CustomItemService {
     ob: Subject<IInventoryArmor[]> = new Subject<IInventoryArmor []>();
+    invUpdate: Subject<number> = new Subject<number>();
     customItems: IInventoryArmor[] = [];
-    artificeItems: IInventoryArmor[] = []
+    artificeItems: IInventoryArmor[] = [];
     
     vendorArmor = new Map<string, vendorArmorResponse>();
-    constructor(private config: ConfigurationService, private db: DatabaseService, private api: BungieApiService) {
+    constructor(private config: ConfigurationService, private db: DatabaseService, private api: BungieApiService, private status: StatusProviderService) {
         console.log("Vendors: new insrtance of custom items")
         this.refreshArtificeCombos()
+        this.invUpdate.subscribe((e) => {
+          // refreshed inventory
+          this.refreshArtificeCombos()
+        })
     }
 
     getCustomItems(): IInventoryArmor[] {
       let allCustomItems: IInventoryArmor[] = []
       allCustomItems.push(...this.artificeItems)
+      // right now was planning for more vendors, but more vendors = slow,
+      // so maybe just have xur
+      let now = new Date(Date.now()).getDay()
+      if (now == 0 || now == 1 || now == 5 || now == 6)
+      this.vendorArmor.forEach((e) => {
+        allCustomItems.push(...e.items)
+      })
+      return allCustomItems
+    }
+
+    getVendorItems(): IInventoryArmor[] {
+      let allCustomItems: IInventoryArmor[] = []
+      let now = new Date(Date.now()).getDay()
+      if (now == 0 || now == 1 || now == 5 || now == 6)
       this.vendorArmor.forEach((e) => {
         allCustomItems.push(...e.items)
       })
@@ -39,43 +59,54 @@ export class CustomItemService {
     }
 
     async refreshArtificeCombos() {
-      this.artificeItems = []
-      const inventoryArmor = await this.db.inventoryArmor.filter((e) => e.perk == ArmorPerkOrSlot.SlotArtificer && e.slot != ArmorSlot.ArmorSlotClass).toArray()
-      console.log("Artifice:", inventoryArmor)
-      inventoryArmor.forEach((e) => {
-        //make 6 copies, add different +3 to each
-        for (let i = 0; i < 6; i++) {
-          let copy: IInventoryArmor = JSON.parse(JSON.stringify(e));
-          switch(i) {
-            case 0:
-              copy.name += " (+3 mobility)"
-              copy.mobility += 3
-              break;
-            case 1:
-              copy.name += " (+3 resilience)"
-              copy.resilience += 3
-              break;
-            case 2:
-              copy.name += " (+3 recovery)"
-              copy.recovery += 3
-              break;
-            case 3:
-              copy.name += " (+3 discipline)"
-              copy.discipline += 3
-              break;
-            case 4: 
-              copy.name += " (+3 intellect)"
-              copy.intellect += 3
-              break;
-            case 5:
-              copy.name += " (+3 strength)"
-              copy.strength += 3
-              break;
+      let inventory = await this.db.inventoryArmor.count()
+      //console.log("Custom num", inventory)
+      if (inventory == 0) {
+        return
+      }
+      let newArtifice: IInventoryArmor[] = []
+        //this.artificeItems = []
+        const inventoryArmor = await this.db.inventoryArmor.filter((e) => e.perk == ArmorPerkOrSlot.SlotArtificer && e.slot != ArmorSlot.ArmorSlotClass).toArray()
+        console.log("Artifice:", inventoryArmor)
+       inventoryArmor.forEach((e) => {
+         //make 6 copies, add different +3 to each
+         for (let i = 0; i < 6; i++) {
+           let copy: IInventoryArmor = JSON.parse(JSON.stringify(e));
+            switch(i) {
+              case 0:
+                copy.name += " (+3 mobility)"
+                copy.mobility += 3
+                break;
+              case 1:
+                copy.name += " (+3 resilience)"
+                copy.resilience += 3
+                break;
+              case 2:
+                copy.name += " (+3 recovery)"
+                copy.recovery += 3
+                break;
+              case 3:
+                copy.name += " (+3 discipline)"
+                copy.discipline += 3
+                break;
+              case 4: 
+                copy.name += " (+3 intellect)"
+                copy.intellect += 3
+               break;
+             case 5:
+               copy.name += " (+3 strength)"
+               copy.strength += 3
+               break;
           }
-          this.artificeItems.push(copy);
+           newArtifice.push(copy);
+         }
+        })
+        if (newArtifice.length != this.artificeItems.length) {
+          this.artificeItems = []
+          this.artificeItems.push(...newArtifice)
+          this.ob.next()
         }
-      })
-      this.ob.next()
+        //this.ob.next()
     }
 
     async refreshXurArmor() {
