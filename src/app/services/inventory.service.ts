@@ -39,7 +39,8 @@ export class InventoryService {
    */
   private allArmorResults: ResultDefinition[] = [];
   private currentClass: CharacterClass = CharacterClass.None;
-  private ignoreArmorAffinitiesOnMasterworkedItems: boolean = false;
+
+
   private _manifest: ReplaySubject<null>;
   public readonly manifest: Observable<null>;
   private _inventory: ReplaySubject<null>;
@@ -108,7 +109,6 @@ export class InventoryService {
 
 
         this._config = c;
-        this.ignoreArmorAffinitiesOnMasterworkedItems = c.ignoreArmorAffinitiesOnMasterworkedItems;
 
         isUpdating = true;
         console.debug("Trigger refreshAll due to config change")

@@ -47,7 +47,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "500kb",
-                  "maximumError": "1500kb"
+                  "maximumError": "1800kb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -61,7 +61,8 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "vendorChunk": true
             },
             "development": {
               "buildOptimizer": false,

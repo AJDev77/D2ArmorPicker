@@ -12,6 +12,52 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_DATA = [
   {
+    version: "2.3.0",
+    date: "February 22, 2023",
+    entries: [
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Automatically adds artifice mods to your armor. This replaces minor and major mods where possible.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Added the amount of used artifice mods to the result table overview (next to the mods).",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Added new fragments, including Strand.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Introduced more modules for asynchronous loading. This is more a speed improvement than a feature.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Adapted modslot cost of Resilience and Recovery mods.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Reduced the maximum limit of reported results from 50,000 to 30,000. Note that D2AP still calculates every result, it just does not report them. This is a major speedup, and you usually should not even realize the change.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Increased the visual contrast of major mods in the results table. This means it is now easier to distinguish major from minor mods.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.REMOVE,
+        text: "Removed the elemental affinity completely.",
+        issues: []
+      },
+    ]
+  },
+  {
     version: "2.2.16",
     date: "December 7, 2022",
     entries: [
@@ -37,7 +83,7 @@ export const CHANGELOG_DATA = [
       },
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "Fixed artificer modslot.",
+        text: "Fixed artifice modslot.",
         issues: []
       },
       {
@@ -139,7 +185,7 @@ export const CHANGELOG_DATA = [
     entries: [
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "The manifest is now (again) automatically updated on version changes. This fixes your artificer problems at the beginning of a new season.",
+        text: "The manifest is now (again) automatically updated on version changes. This fixes your artifice problems at the beginning of a new season.",
         issues: []
       },
       {
@@ -155,7 +201,7 @@ export const CHANGELOG_DATA = [
     entries: [
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "Fixed Artificer modslots. You might need to wait a bit, alternatively delete the database (Account section) or re-log.",
+        text: "Fixed Artifice modslots. You might need to wait a bit, alternatively delete the database (Account section) or re-log.",
         issues: []
       }
     ]
@@ -262,7 +308,7 @@ export const CHANGELOG_DATA = [
       },
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "Adapted artificer armor to the new Season.",
+        text: "Adapted artifice armor to the new Season.",
         issues: []
       },
     ]
@@ -351,7 +397,7 @@ export const CHANGELOG_DATA = [
       // "~ Improved help texts of advanced settings.", // TODO; Feedback source https://www.reddit.com/r/DestinyTheGame/comments/rxikvo/how_to_minimize_wasted_stat_points_in_your_build/hrj7141/?utm_source=reddit&utm_medium=web2x&context=3
       {
         type: ChangelogEntryType.ADD,
-        text: "Added the ability to select armor perks and 5th slots. Just like the elements you can optionally enforce it to be on a certain slot. Useful if you want to build Iron Banner armor or utilize artificer modslots."
+        text: "Added the ability to select armor perks and 5th slots. Just like the elements you can optionally enforce it to be on a certain slot. Useful if you want to build Iron Banner armor or utilize artifice modslots."
       },
       {
         type: ChangelogEntryType.ADD,

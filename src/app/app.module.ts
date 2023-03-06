@@ -82,6 +82,8 @@ import {
   StatCooldownTooltipDirective
 } from "./components/authenticated-v2/overlays/stat-cooldown-tooltip/stat-cooldown-tooltip.directive";
 import { SlotLimitationTitleComponent } from './components/authenticated-v2/settings/desired-mod-limit-selection/slot-limitation-title/slot-limitation-title.component';
+import {CommonMaterialModule} from "./modules/common-material/common-material.module";
+import {CommonModule} from "@angular/common";
 
 
 const routes: Routes = [
@@ -103,6 +105,11 @@ const routes: Routes = [
       {
         path: 'investigate',
         component: ArmorInvestigationPageComponent
+      },
+      {
+        path: 'theory',
+        // load TheorizerPageModule
+        loadChildren: () => import('./components/authenticated-v2/subpages/theorizer-page/theorizer-page.module').then(m => m.TheorizerPageModule)
       },
       {
         path: 'account',
@@ -164,40 +171,15 @@ const routes: Routes = [
     SlotLimitationTitleComponent
   ],
   imports: [
-    FlexLayoutModule,
+    CommonModule,
+    CommonMaterialModule,
+
     BrowserModule,
-    HttpClientModule,
     BrowserAnimationsModule,
-    MatButtonModule,
+    HttpClientModule,
     RouterModule.forRoot(routes, {useHash: true}),
-    MatFormFieldModule,
-    MatSelectModule,
-    MatOptionModule,
-    MatSliderModule,
-    ReactiveFormsModule,
-    MatInputModule,
-    MatSlideToggleModule,
-    FormsModule,
-    MatTableModule,
-    MatCardModule,
-    MatTooltipModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatToolbarModule,
-    MatMenuModule,
-    MatButtonToggleModule,
-    MatListModule,
-    MatExpansionModule,
-    MatDialogModule,
     ClipboardModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatChipsModule,
     LayoutModule,
-    MatSidenavModule
   ],
   providers: [],
   bootstrap: [AppComponent]

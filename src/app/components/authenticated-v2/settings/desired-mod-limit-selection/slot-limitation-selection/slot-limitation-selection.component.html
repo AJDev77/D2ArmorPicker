@@ -39,16 +39,16 @@
         <div class="overlay"></div>
       </div>
       <!-- resilience -->
-      <div [class.major]="slot >= 3" [class.minor]="slot >= 1 && slot < 3" class="mod-info">
+      <div [class.major]="slot >= 4" [class.minor]="slot >= 2 && slot < 4" class="mod-info">
         <img class="mod-icon mod-major"
              src="https://bungie.net/common/destiny2_content/icons/195f4f173adb52b336b4ecd67101004d.png">
         <img class="mod-icon mod-minor"
              src="https://bungie.net/common/destiny2_content/icons/53c28186a4b97285a01aace5748e4de7.png">
         <svg class="mod-number mod-major" viewBox="0 0 100 100">
-          <text font-size="25px" text-anchor="end" x="87" y="30">3</text>
+          <text font-size="25px" text-anchor="end" x="87" y="30">4</text>
         </svg>
         <svg class="mod-number mod-minor" viewBox="0 0 100 100">
-          <text font-size="25px" text-anchor="end" x="87" y="30">1</text>
+          <text font-size="25px" text-anchor="end" x="87" y="30">2</text>
         </svg>
         <div class="overlay"></div>
       </div>
@@ -95,13 +95,13 @@
         <div class="overlay"></div>
       </div>
       <!-- intellect -->
-      <div [class.major]="slot >= 5" [class.minor]="slot >= 2 && slot < 5" class="mod-info">
+      <div [class.major]="slot >= 4" [class.minor]="slot >= 2 && slot < 4" class="mod-info">
         <img class="mod-icon mod-major"
              src="https://bungie.net/common/destiny2_content/icons/9fd56c3b42923c9df23edf585b0107bf.png">
         <img class="mod-icon mod-minor"
              src="https://bungie.net/common/destiny2_content/icons/d8da60458e3355ddf7123be5ffe3dc3c.png">
         <svg class="mod-number mod-major" viewBox="0 0 100 100">
-          <text font-size="25px" text-anchor="end" x="87" y="30">5</text>
+          <text font-size="25px" text-anchor="end" x="87" y="30">4</text>
         </svg>
         <svg class="mod-number mod-minor" viewBox="0 0 100 100">
           <text font-size="25px" text-anchor="end" x="87" y="30">2</text>
@@ -118,27 +118,6 @@
                        class="select-button {{selection >= i ? 'mat-button-toggle-checked' : ''}}">{{i}}</mat-button-toggle>
   </mat-button-toggle-group>
 
-  <div class="selector-element">
-    <div class="element-list">
-      <!-- Item affinity -->
-      <img #tooltip="matTooltip" (click)="setArmorElement(1)" [class.selected]="element == 1" [src]="getAffinityUrl(1)"
-           class="element-icon" matTooltip='{{getAffinityName(1)}} affinity'>
-      <img #tooltip="matTooltip" (click)="setArmorElement(2)" [class.selected]="element == 2" [src]="getAffinityUrl(2)"
-           class="element-icon" matTooltip='{{getAffinityName(2)}} affinity'>
-      <img #tooltip="matTooltip" (click)="setArmorElement(3)" [class.selected]="element == 3" [src]="getAffinityUrl(3)"
-           class="element-icon" matTooltip='{{getAffinityName(3)}} affinity'>
-      <img #tooltip="matTooltip" (click)="setArmorElement(6)" [class.selected]="element == 6" [src]="getAffinityUrl(6)"
-           class="element-icon" matTooltip='{{getAffinityName(6)}} affinity'>
-    </div>
-
-    <button (click)="toggleElementLock()" class="lock" mat-icon-button
-            matTooltip="Force the selected element to be on a {{slotName}}.">
-      <mat-icon *ngIf="!elementLock">lock_open</mat-icon>
-      <mat-icon *ngIf="elementLock">lock</mat-icon>
-    </button>
-
-    <div class="left_line"></div>
-  </div>
 
   <div class="selector-slots">
   <mat-button-toggle-group [class.impossible]="!isPossible">
@@ -156,7 +135,7 @@
   </mat-button-toggle-group>
   <mat-menu #dropdownArmorModslot="matMenu" class="modslot-select-scroll-menu">
     <ng-container
-      *ngFor="let perk of [ArmorPerkOrSlot.None, ArmorPerkOrSlot.SlotKingsFall, ArmorPerkOrSlot.SlotVowOfTheDisciple,ArmorPerkOrSlot.SlotVaultOfGlass, ArmorPerkOrSlot.SlotDeepStoneCrypt, ArmorPerkOrSlot.SlotGardenOfSalvation, ArmorPerkOrSlot.SlotLastWish, ArmorPerkOrSlot.SlotNightmare, ArmorPerkOrSlot.SlotArtificer, ArmorPerkOrSlot.PerkIronBanner, ArmorPerkOrSlot.PerkUniformedOfficer, ArmorPerkOrSlot.PerkPlunderersTrappings, ArmorPerkOrSlot.SeraphSensorArray]">
+      *ngFor="let perk of [ArmorPerkOrSlot.None, ArmorPerkOrSlot.SlotKingsFall, ArmorPerkOrSlot.SlotVowOfTheDisciple,ArmorPerkOrSlot.SlotVaultOfGlass, ArmorPerkOrSlot.SlotDeepStoneCrypt, ArmorPerkOrSlot.SlotGardenOfSalvation, ArmorPerkOrSlot.SlotLastWish, ArmorPerkOrSlot.SlotNightmare, ArmorPerkOrSlot.SlotArtifice, ArmorPerkOrSlot.PerkIronBanner, ArmorPerkOrSlot.PerkUniformedOfficer, ArmorPerkOrSlot.PerkPlunderersTrappings, ArmorPerkOrSlot.SeraphSensorArray]">
       <button mat-menu-item (click)="setArmorPerk(perk)" [class.selected-menu]="perk == armorPerk">
         <app-armor-perk-icon [perk]="perk" class="menuArmorIcon"></app-armor-perk-icon>
         <span class="menuArmorText">{{ArmorPerkOrSlotNames[perk]}}</span>

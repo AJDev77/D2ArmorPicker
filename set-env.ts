@@ -2,7 +2,7 @@ const writeFile = require("fs").writeFile
 
 const production = process.env.PRODUCTION === "1"
 const beta_branch = process.env.BETA === "1"
-const version = "2.2.16"
+const version = "2.3.0"
 
 // Configure Angular `environment.ts` file path
 const targetPath = production
@@ -39,7 +39,8 @@ const data = {
   clientId: process.env.D2AP_BUNGIE_CLIENT_ID,
   client_secret: process.env.D2AP_BUNGIE_CLIENT_SECRET,
   dimAPIKey: process.env.D2AP_DIM_API_KEY,
-  nodeEnv: process.env.NODE_ENV
+  nodeEnv: process.env.NODE_ENV,
+  offlineMode: false
 }
 
 

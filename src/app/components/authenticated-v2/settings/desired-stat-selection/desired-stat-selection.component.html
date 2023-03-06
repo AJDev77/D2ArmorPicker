@@ -22,7 +22,6 @@
   <span class="tierSelectButton">
     <button mat-stroked-button color="warn" id="clearStatButton" (click)="clearStatSelection()">Clear</button>
   </span>
-
   <span class="tierSelectButton">
     <button mat-stroked-button class="selectStatDistributionButton" [matMenuTriggerFor]="menu1"
             aria-label="Select builds with three stats at tier 10."
@@ -75,3 +74,11 @@
     </mat-menu>
   </span>
 </span>
+
+<div *ngIf="config_zero_waste" class="warn">
+  Known issue: Zero-Waste lets you select higher stats than you can achieve.
+  <br>
+  This will be fixed in a future update.
+</div>
+
+

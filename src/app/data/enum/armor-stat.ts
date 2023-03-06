@@ -6,16 +6,22 @@ export enum StatModifier {
   NONE,
   MINOR_MOBILITY,
   MAJOR_MOBILITY,
+  ARTIFICE_MOBILITY,
   MINOR_RESILIENCE,
   MAJOR_RESILIENCE,
+  ARTIFICE_RESILIENCE,
   MINOR_RECOVERY,
   MAJOR_RECOVERY,
+  ARTIFICE_RECOVERY,
   MINOR_DISCIPLINE,
   MAJOR_DISCIPLINE,
+  ARTIFICE_DISCIPLINE,
   MINOR_INTELLECT,
   MAJOR_INTELLECT,
+  ARTIFICE_INTELLECT,
   MINOR_STRENGTH,
   MAJOR_STRENGTH,
+  ARTIFICE_STRENGTH
 }
 
 
@@ -72,7 +78,7 @@ export enum SpecialArmorStat {
 export enum ArmorPerkOrSlot {
   None,
   SlotNightmare,
-  SlotArtificer,
+  SlotArtifice,
   SlotLastWish,
   SlotGardenOfSalvation,
   SlotDeepStoneCrypt,
@@ -89,7 +95,7 @@ export enum ArmorPerkOrSlot {
 export const ArmorPerkOrSlotNames: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.None]: "None",
   [ArmorPerkOrSlot.SlotNightmare]: "Nightmare Hunt Modslot",
-  [ArmorPerkOrSlot.SlotArtificer]: "Artificer Modslot",
+  [ArmorPerkOrSlot.SlotArtifice]: "Artifice Modslot",
   [ArmorPerkOrSlot.SlotLastWish]: "Last Wish Modslot",
   [ArmorPerkOrSlot.SlotGardenOfSalvation]: "Garden of Salvation Modslot",
   [ArmorPerkOrSlot.SlotDeepStoneCrypt]: "Deep Stone Crypt Modslot",
@@ -106,7 +112,7 @@ export const ArmorPerkOrSlotIcons: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.None]: "https://www.bungie.net/img/misc/missing_icon_d2.png",
   //[ArmorPerkOrSlot.None]: "https://www.bungie.net/common/destiny2_content/icons/58afd7d17e7b58883b94fd5ba2e66b76.png",
   [ArmorPerkOrSlot.SlotNightmare]: "https://bungie.net/common/destiny2_content/icons/6bf9ba37386b907ddb514ec422fc74c9.png",
-  [ArmorPerkOrSlot.SlotArtificer]: "https://bungie.net/common/destiny2_content/icons/74aeb2f3d7bc16a31a6924822f850184.png",
+  [ArmorPerkOrSlot.SlotArtifice]: "https://bungie.net/common/destiny2_content/icons/74aeb2f3d7bc16a31a6924822f850184.png",
   [ArmorPerkOrSlot.SlotLastWish]: "https://bungie.net/common/destiny2_content/icons/c70116144be386def9e675d76dacfe64.png",
   [ArmorPerkOrSlot.SlotGardenOfSalvation]: "https://bungie.net/common/destiny2_content/icons/6bf9ba37386b907ddb514ec422fc74c9.png",
   [ArmorPerkOrSlot.SlotDeepStoneCrypt]: "https://bungie.net/common/destiny2_content/icons/3c14e3c3a747a7487c76f38602b9e2fe.png",
@@ -123,7 +129,7 @@ export const ArmorPerkOrSlotIcons: EnumDictionary<ArmorPerkOrSlot, string> = {
 export const ArmorPerkOrSlotDIMText: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.None]: "",
   [ArmorPerkOrSlot.SlotNightmare]: "modslot:nightmare",
-  [ArmorPerkOrSlot.SlotArtificer]: "perkname:\"artifice armor\"",
+  [ArmorPerkOrSlot.SlotArtifice]: "perkname:\"artifice armor\"",
   [ArmorPerkOrSlot.SlotLastWish]: "modslot:lastwish",
   [ArmorPerkOrSlot.SlotGardenOfSalvation]: "modslot:gardenofsalvation",
   [ArmorPerkOrSlot.SlotDeepStoneCrypt]: "modslot:deepstonecrypt",

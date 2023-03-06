@@ -71,9 +71,6 @@
           <mat-chip #tooltip="matTooltip" *ngIf="_config_tryLimitWastedStats" disableRipple
                     matTooltip="The tool will add minor stat mods to reduce wasted stats.">Reduce wasted stats
           </mat-chip>
-          <mat-chip #tooltip="matTooltip" *ngIf="_config_enabledAffinity.length > 0" disableRipple
-                    matTooltip="This setting enforces a specific element for a specific armor slot.">Elemental Affinity
-          </mat-chip>
           <mat-chip #tooltip="matTooltip" *ngIf="_config_modslotLimitation.length > 0" disableRipple
                     matTooltip="This setting limits available stat mod types, like major Intellect or Recovery.">Stat
             Mod Limitation
@@ -88,25 +85,17 @@
           <mat-chip #tooltip="matTooltip" *ngIf="_config_enabledStasis" disableRipple
                     matTooltip="You enabled stasis fragments that affect stats.">Stasis Fragments
           </mat-chip>
-          <mat-chip #tooltip="matTooltip"
-                    *ngIf="_config_ignoreArmorAffinitiesOnMasterworkedItems && !_config_ignoreArmorAffinitiesOnNonMasterworkedItems"
-                    disableRipple
-                    matTooltip="Ignore elements of non-masterworked items">Masterworked: IgnoreElements
-          </mat-chip>
-          <mat-chip #tooltip="matTooltip"
-                    *ngIf="_config_ignoreArmorAffinitiesOnNonMasterworkedItems && !_config_ignoreArmorAffinitiesOnMasterworkedItems"
-                    disableRipple
-                    matTooltip="Ignore elements of masterworked items">Non-Masterworked: Ignore Elements
-          </mat-chip>
-          <mat-chip #tooltip="matTooltip"
-                    *ngIf="_config_ignoreArmorAffinitiesOnNonMasterworkedItems && _config_ignoreArmorAffinitiesOnMasterworkedItems"
-                    disableRipple
-                    matTooltip="Ignore all elements of all items."
-                    selected>Ignore all Elements
-          </mat-chip>
           <mat-chip #tooltip="matTooltip" *ngIf="_config_onlyShowResultsWithNoWastedStats" disableRipple
                     matTooltip="This setting means that only builds with no wasted stats are shown."
                     selected>Zero Waste
+          </mat-chip>
+          <mat-chip #tooltip="matTooltip" *ngIf="_config_assumeEveryLegendaryIsArtifice" disableRipple
+                    matTooltip="EVERY legendary is assumed to be artifice."
+                    selected
+                    color="warn">
+            <mat-icon inline style="height: 100%;">report_problem</mat-icon>
+            &nbsp;Assume everything is artifice&nbsp;
+            <mat-icon inline style="height: 100%;">report_problem</mat-icon>
           </mat-chip>
           <mat-chip #tooltip="matTooltip" *ngIf="_config_onlyUseMasterworkedItems" disableRipple
                     matTooltip="This setting means that only armor pieces are used that are already masterworked."
@@ -211,78 +200,10 @@
             Used Mods
           </th>
           <td *matCellDef="let element" mat-cell>
-            <span *ngIf="element.modCount == 0">None</span>
-            <!-- MOBILITY -->
             <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_MOBILITY)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Mobility"
-              url="https://www.bungie.net/common/destiny2_content/icons/287901ef741855655856f6e8f5776f03.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_MOBILITY)"
-              class="modPreview"
-              tooltipText="Mobility"
-              url="https://www.bungie.net/common/destiny2_content/icons/c664ddd10920daab49cc3808dbb6a1e6.png"></app-table-mod-display>
-
-            <!-- RESILIENCE -->
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_RESILIENCE)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Resilience"
-              url="https://bungie.net/common/destiny2_content/icons/53c28186a4b97285a01aace5748e4de7.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_RESILIENCE)"
-              class="modPreview"
-              tooltipText="Resilience"
-              url="https://www.bungie.net/common/destiny2_content/icons/195f4f173adb52b336b4ecd67101004d.png"></app-table-mod-display>
-
-            <!-- RECOVERY -->
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_RECOVERY)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Recovery"
-              url="https://bungie.net/common/destiny2_content/icons/f39b0c97678148a864d6f6fbbe85524d.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_RECOVERY)"
-              class="modPreview"
-              tooltipText="Recovery"
-              url="https://www.bungie.net/common/destiny2_content/icons/18054408a5fc068f2384c6c31a183423.png"></app-table-mod-display>
-
-            <!-- DISCIPLINE -->
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_DISCIPLINE)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Discipline"
-              url="https://bungie.net/common/destiny2_content/icons/8fa2d4e4c82586668210e12c5115575a.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_DISCIPLINE)"
-              class="modPreview"
-              tooltipText="Discipline"
-              url="https://www.bungie.net/common/destiny2_content/icons/9d54e2149f945b2c298020da443b70fa.png"></app-table-mod-display>
-
-            <!-- INTELLECT -->
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_INTELLECT)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Intellect"
-              url="https://bungie.net/common/destiny2_content/icons/d8da60458e3355ddf7123be5ffe3dc3c.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_INTELLECT)"
-              class="modPreview"
-              tooltipText="Intellect"
-              url="https://www.bungie.net/common/destiny2_content/icons/9fd56c3b42923c9df23edf585b0107bf.png"></app-table-mod-display>
-
-            <!-- STRENGTH -->
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MINOR_STRENGTH)"
-              [isMinorMod]="true" class="modPreview"
-              tooltipText="Strength"
-              url="https://bungie.net/common/destiny2_content/icons/ec0b298ec4dac0023604e467a58c3868.png"></app-table-mod-display>
-            <app-table-mod-display
-              [amount]="(element.mods | count:StatModifier.MAJOR_STRENGTH)"
-              class="modPreview"
-              tooltipText="Strength"
-              url="https://www.bungie.net/common/destiny2_content/icons/07f2361532c79e773909220e5884ab07.png"></app-table-mod-display>
+              [mods]="element.mods"
+              [artifice]="element.artifice"
+              class="modPreview"></app-table-mod-display>
           </td>
         </ng-container>
 

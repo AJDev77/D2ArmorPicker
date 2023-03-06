@@ -92,24 +92,6 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
               help: undefined
             },
           ],
-          "Elemental Armor Affinity": [
-            {
-              name: "Ignore armor elemental affinities on masterworked armor",
-              cp: (v: boolean) => this.config.modifyConfiguration(c => c.ignoreArmorAffinitiesOnMasterworkedItems = v),
-              value: c.ignoreArmorAffinitiesOnMasterworkedItems,
-              disabled: false,
-              impactsResultCount: true,
-              help: "Use this toggle to ignore the affinity of masterworked items. This may force you to change the element of exotics, which can be quite expensive. Enabling both settings disables the whole affinity selection."
-            },
-            {
-              name: "Ignore armor elemental affinities on non-masterworked armor",
-              cp: (v: boolean) => this.config.modifyConfiguration(c => c.ignoreArmorAffinitiesOnNonMasterworkedItems = v),
-              value: c.ignoreArmorAffinitiesOnNonMasterworkedItems,
-              disabled: false,
-              impactsResultCount: true,
-              help: "Use this toggle to ignore the affinity of non-masterworked items. Enabling both settings disables the whole affinity selection."
-            },
-          ],
           "Performance Optimization": [
             {
               name: "Use security features to prevent app crashes (resets on reload).",
@@ -117,7 +99,7 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
               value: c.limitParsedResults,
               disabled: false,
               impactsResultCount: true,
-              help: "Only parse the first 50,000 results. Deactivating this may crash your browser. The results will still be limited to 1,000,000 entries. Note that you will not miss any significant results by leaving this enabled."
+              help: "Only parse the first 30,000 results. Deactivating this may crash your browser. The results will still be limited to 1,000,000 entries. Note that you will not miss any significant results by leaving this enabled."
             },
           ],
           "Extra Columns": [
@@ -164,7 +146,16 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
               disabled: false,
               impactsResultCount: false,
               help: "You usually do not want to use this."
-            }
+            },
+            {
+              name: "Assume every legendary is an artifice armor.",
+              cp: (v: boolean) => this.config.modifyConfiguration(c => c.assumeEveryLegendaryIsArtifice = v),
+              value: c.assumeEveryLegendaryIsArtifice,
+              disabled: false,
+              impactsResultCount: true,
+              help: "This is for debugging purposes. Do not complain if you enable this. Reload after changing this setting."
+            },
+
           ]
         }
         this.fieldKeys = Object.keys(this.fields2)

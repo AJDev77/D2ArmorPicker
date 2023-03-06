@@ -23,15 +23,11 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
   ModifierType = ModifierType;
   ModOrAbility = ModOrAbility;
   dataSource: Modifier[];
-  displayedColumns = ["name", "cost", "mobility", "resilience", "recovery", "discipline", "intellect", "strength"];
+  displayedColumns = ["name", "mobility", "resilience", "recovery", "discipline", "intellect", "strength"];
   private selectedClass: CharacterClass = CharacterClass.None;
   data: { data: Modifier[]; name: string, group: boolean, type: ModifierType }[];
   selectedMods: ModOrAbility[] = [];
   selectedElement: ModifierType = ModifierType.Solar;
-  retrofitCount : {[id:string]: number} = {
-    [ModOrAbility.MobileRetrofit]: 0,
-    [ModOrAbility.ResilientRetrofit]: 0,
-  }
 
   constructor(private config: ConfigurationService) {
     const modifiers = Object.values(ModInformation).sort((a, b) => {
@@ -51,12 +47,11 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
     let strandFragments = modifiers.filter(value => value.type == ModifierType.Strand);
 
     this.data = [
-      {name: "Combat Style Mods", data: combatStyleMods, group: false, type: ModifierType.CombatStyleMod},
       {name: "Stasis Fragments", data: stasisFragments, group: true, type: ModifierType.Stasis},
       {name: "Void Fragments", data: voidFragments, group: true, type: ModifierType.Void},
       {name: "Solar Fragments", data: solarFragments, group: true, type: ModifierType.Solar},
       {name: "Arc Fragments", data: arcFragments, group: true, type: ModifierType.Arc},
-      {name: "Strand Fragments", data: strandFragments, group: true, type: ModifierType.Strand}
+      {name: "Strand Fragments", data: strandFragments, group: true, type: ModifierType.Strand},
     ]
 
     this.dataSource = modifiers;
@@ -92,10 +87,7 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
       if (pos > -1) {
         c.enabledMods.splice(pos, 1)
       } else {
-        // Do not allow more than 5 stat mods
-        const amountStatMods = c.enabledMods.filter(d => ModInformation[d].requiredArmorAffinity != DestinyEnergyType.Any).length;
-        if (row.requiredArmorAffinity == DestinyEnergyType.Any || amountStatMods < 5)
-          c.enabledMods.push(row.id)
+        c.enabledMods.push(row.id)
       }
     })
   }
@@ -114,22 +106,6 @@ export class DesiredModsSelectionComponent implements OnInit, OnDestroy {
     return ArmorAffinityIcons[id];
   }
 
-  setRetrofitCount(type: ModOrAbility, count: number) {
-    this.retrofitCount[type] = count;
-    this.config.modifyConfiguration(c => {
-      const pos = c.enabledMods.filter(m => m == type)
-
-      // first, remove all mods of this type
-      for (let toDisableMods of pos) {
-        const position = c.enabledMods.indexOf(toDisableMods);
-        c.enabledMods.splice(position, 1)
-      }
-      // now add count amount of mods
-      for (let i = 0; i < count; i++) {
-        c.enabledMods.push(type);
-      }
-    })
-  }
 
   setElement(element: ModifierType) {
     if (this.selectedElement == element)

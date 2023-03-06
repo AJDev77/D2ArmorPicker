@@ -3,7 +3,7 @@ import {
   DestinyClass,
   DestinyComponentType,
   DestinyEnergyType,
-  DestinyInventoryItemDefinition,
+  DestinyInventoryItemDefinition, DestinyItemSocketState,
   DestinyVendorResponse,
   equipItem,
   getDestinyManifest,
@@ -25,12 +25,15 @@ import {IManifestArmor} from "../data/types/IManifestArmor";
 import {IInventoryArmor} from "../data/types/IInventoryArmor";
 import {ArmorSlot} from "../data/enum/armor-slot";
 import {ArmorPerkOrSlot} from "../data/enum/armor-stat";
+import {ConfigurationService} from "./configuration.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class BungieApiService {
   public customItems: IInventoryArmor[] = []
+
+  config_assumeEveryLegendaryIsArtifice = false;
 
   constructor(private authService: AuthService, private http: HttpClient, private db: DatabaseService) {
   }
@@ -67,6 +70,10 @@ export class BungieApiService {
     ).toPromise()
       .catch(async err => {
         console.error(err);
+        if (environment.offlineMode) {
+          console.debug("Offline mode, ignoring API error")
+          return;
+        }
         if (err.error?.ErrorStatus == "SystemDisabled") {
           console.info("System is disabled. Revoking auth, must re-login")
           //await this.authService.logout();
@@ -280,6 +287,11 @@ export class BungieApiService {
   }
 
   async updateArmorItems(force = false) {
+    if (environment.offlineMode) {
+      console.info("BungieApiService", "updateArmorItems", "offline mode, skipping")
+      return;
+    }
+
     if (!force && localStorage.getItem("LastArmorUpdate"))
       if (localStorage.getItem("last-armor-db-name") == this.db.inventoryArmor.db.name)
         if (Date.now() - Number.parseInt(localStorage.getItem("LastArmorUpdate") || "0") < 1000 * 3600 / 2)
@@ -390,8 +402,7 @@ export class BungieApiService {
             masterworked: !!instance.energy && instance.energy.energyCapacity == 10,
             energyLevel: !!instance.energy ? instance.energy.energyCapacity : 0,
             mobility: 0, resilience: 0, recovery: 0,
-            discipline: 0, intellect: 0, strength: 0,
-            energyAffinity: instance.energy?.energyType || 0,
+            discipline: 0, intellect: 0, strength: 0
           }, res[d.itemHash]) as IInventoryArmor
           (r.id as any) = undefined;
 
@@ -411,15 +422,21 @@ export class BungieApiService {
             }
           }
           if (r.slot != ArmorSlot.ArmorSlotClass) {
-            const sockets = (profile.Response.itemComponents.sockets.data || {})[d.itemInstanceId || ""].sockets;
-            var plugs = [sockets[6].plugHash, sockets[7].plugHash, sockets[8].plugHash, sockets[9].plugHash]
-            r.statPlugHashes = plugs;
-            var plm = plugs.map(k => mods[k || ""]).filter(k => k != null);
-            for (let entry of plm) {
-              for (let newStats of entry.investmentStats) {
-                if (newStats.statTypeHash in investmentStats)
-                  investmentStats[newStats.statTypeHash] += newStats.value;
+            const destinyItemSocketsComponents = profile.Response.itemComponents.sockets.data || {};
+            // check if d.itemInstanceId is in destinyItemSocketsComponents
+            if (d.itemInstanceId && d.itemInstanceId in destinyItemSocketsComponents) {
+              const sockets : DestinyItemSocketState[] = destinyItemSocketsComponents[d.itemInstanceId || ""].sockets;
+              var plugs = [sockets[6].plugHash, sockets[7].plugHash, sockets[8].plugHash, sockets[9].plugHash]
+              r.statPlugHashes = plugs;
+              var plm = plugs.map(k => mods[k || ""]).filter(k => k != null);
+              for (let entry of plm) {
+                for (let newStats of entry.investmentStats) {
+                  if (newStats.statTypeHash in investmentStats)
+                    investmentStats[newStats.statTypeHash] += newStats.value;
+                }
               }
+            } else {
+              console.error("Sockets data does not contain the correct item instance ID", d.itemInstanceId, profile.Response.itemComponents.sockets.data);
             }
           }
           r.mobility = investmentStats[2996146975]
@@ -429,8 +446,8 @@ export class BungieApiService {
           r.intellect = investmentStats[144602215]
           r.strength = investmentStats[4244567218]
 
-          // Take a look if it really has the artificer perk
-          if (r.perk == ArmorPerkOrSlot.SlotArtificer) {
+          // Take a look if it really has the artifice perk
+          if (r.perk == ArmorPerkOrSlot.SlotArtifice) {
             let statData = profile.Response.itemComponents.perks.data || {};
             let perks = (statData[d.itemInstanceId || ""] || {})["perks"] || []
             const hasPerk = perks.filter(p => p.perkHash == 229248542).length > 0;
@@ -441,6 +458,8 @@ export class BungieApiService {
           return r as IInventoryArmor
         }
       ) || []
+
+    r = r.filter(k => !k["statPlugHashes"] || (k["statPlugHashes"][0] != null))
 
     // Now add the stuff to the db..
     await this.db.inventoryArmor.clear();
@@ -484,6 +503,12 @@ export class BungieApiService {
   }
 
   async updateManifest(force = false) {
+    if (environment.offlineMode) {
+      console.info("BungieApiService", "updateManifest", "offline mode, skipping")
+      return;
+    }
+
+
     var destinyManifest = null;
     if (!force && localStorage.getItem("LastManifestUpdate") && localStorage.getItem("last-manifest-revision")) {
       if (localStorage.getItem("last-manifest-revision") == environment.revision) {

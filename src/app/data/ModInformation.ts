@@ -6,109 +6,6 @@ import {ArmorStat, SpecialArmorStat} from "./enum/armor-stat";
 import {DestinyEnergyType} from "bungie-api-ts/destiny2/interfaces";
 
 export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
-  // MODS
-  // POSITIVE Mods
-  [ModOrAbility.PowerfulFriends]: {
-    id: ModOrAbility.PowerfulFriends,
-    name: "Powerful Friends",
-    description: "When you become Charged with Light, nearby allies also become Charged with Light, if they are not already.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Mobility, value: 20}],
-    cost: 4,
-    requiredArmorAffinity: DestinyEnergyType.Arc,
-    hash: 1484685887
-  },
-  [ModOrAbility.RadiantLight]: {
-    id: ModOrAbility.RadiantLight,
-    name: "Radiant Light",
-    description: "Casting your Super causes nearby allies to become Charged with Light.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Strength, value: 20}],
-    cost: 3,
-    requiredArmorAffinity: DestinyEnergyType.Arc,
-    hash: 2979815167
-  },
-  // NEGATIVE Mods
-  [ModOrAbility.ProtectiveLight]: {
-    id: ModOrAbility.ProtectiveLight,
-    name: "Protective Light",
-    description: "While Charged with Light, you gain significant damage resistance against combatants when your shields are destroyed. This effect consumes all stacks of Charged with Light. The more stacks consumed, the longer the damage resistance lasts.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Strength, value: -10}],
-    cost: 2,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 3523075120
-  },
-  [ModOrAbility.ExtraReserves]: {
-    id: ModOrAbility.ExtraReserves,
-    name: "Extra Reserves",
-    description: "While Charged with Light, defeating combatants with Void damage grants a chance to drop Special ammo. This effect consumes all stacks of Charged with Light. The more stacks you have, the higher your chance of gaining the ammo drop.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Intellect, value: -10}],
-    cost: 3,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 3523075121
-  },
-  [ModOrAbility.PreciselyCharged]: {
-    id: ModOrAbility.PreciselyCharged,
-    name: "Precisely Charged",
-    description: "Become Charged with Light by getting multiple rapid precision final blows with Linear Fusion Rifles or Sniper Rifles.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Discipline, value: -10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 3523075122
-  },
-  [ModOrAbility.StacksOnStacks]: {
-    id: ModOrAbility.StacksOnStacks,
-    name: "Stacks on Stacks",
-    description: "Gain an extra stack of Charged with Light for every stack you gain.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Recovery, value: -10}],
-    cost: 4,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 3523075123
-  },
-  [ModOrAbility.PrecisionCharge]: {
-    id: ModOrAbility.PrecisionCharge,
-    name: "Precision Charge",
-    description: "Become Charged with Light by rapidly defeating combatants with precision kills from Bows, Hand Cannons, and Scout Rifles.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Strength, value: -10}],
-    cost: 2,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 2263321584
-  },
-  [ModOrAbility.SurpriseAttack]: {
-    id: ModOrAbility.SurpriseAttack,
-    name: "Surprise Attack",
-    description: "While Charged with Light, reloading or readying a Sidearm will consume all stacks of Charged with Light and convert them into stacks of a major damage buff, which are depleted as you damage combatants with that Sidearm.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Intellect, value: -10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 2263321585
-  },
-  [ModOrAbility.EnergyConverter]: {
-    id: ModOrAbility.EnergyConverter,
-    name: "Energy Converter",
-    description: "While Charged with Light, using your grenade attack grants you Super energy, consuming all stacks of Charged with Light. The more stacks you have, the more energy you gain, up to a maximum of 50% of your Super energy.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: ArmorStat.Discipline, value: -10}],
-    cost: 4,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 2263321586
-  },
-  [ModOrAbility.ChargeHarvester]: {
-    id: ModOrAbility.ChargeHarvester,
-    name: "Charge Harvester",
-    description: "While you are not Charged with Light, any kill or assist has a small cumulative chance to cause you to become Charged with Light.",
-    type: ModifierType.CombatStyleMod,
-    bonus: [{stat: SpecialArmorStat.ClassAbilityRegenerationStat, value: -10}],
-    cost: 3,
-    requiredArmorAffinity: DestinyEnergyType.Void,
-    hash: 2263321587
-  },
   // Positive STASIS
   [ModOrAbility.WhisperOfDurance]: {
     id: ModOrAbility.WhisperOfDurance,
@@ -306,7 +203,7 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
   [ModOrAbility.EchoOfVigilance]: {
     id: ModOrAbility.EchoOfVigilance,
     name: "Echo of Vigilance",
-    description: "Defeating a target when your shields are depleted, grants you a temporary Void overshield.",
+    description: "Defeating a target while your shields are depleted grants you a temporary Void overshield.",
     type: ModifierType.Void,
     bonus: [{stat: ArmorStat.Recovery, value: -10}],
     cost: 1,
@@ -418,7 +315,7 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
   [ModOrAbility.EmberOfMercy]: {
     id: ModOrAbility.EmberOfMercy,
     name: "Ember of Mercy",
-    description: "When you revive an ally, you and other nearby allies gain Restoration. Picking up a Solar Flare grants Restoration.",
+    description: "When you revive an ally, you and other nearby allies gain restoration. Picking up a Firesprite grants restoration.",
     type: ModifierType.Solar,
     bonus: [{stat: ArmorStat.Resilience , value: 10}],
     cost: 1,
@@ -497,60 +394,10 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 1727069364
   },
-  // Strand
-  [ModOrAbility.ThreadOfAscent]: {
-    id: ModOrAbility.ThreadOfAscent,
-    name: "Thread Of Ascent",
-    description: "Activating your grenade ability reloads your equipped weapon and grants bonus airborne effectiveness and handling for a short duration.",
-    type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Mobility , value: 10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 4208512216
-  },
-  [ModOrAbility.ThreadOfBinding]: {
-    id: ModOrAbility.ThreadOfBinding,
-    name: "Thread Of Binding",
-    description: "Super final blows emit a suspending burst from the target.",
-    type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Resilience , value: 10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 3192552688
-  },
-  [ModOrAbility.ThreadOfContinuity]: {
-    id: ModOrAbility.ThreadOfContinuity,
-    name: "Thread Of Continuity",
-    description: "Suspend, unravel, and sever effects applied to targets have increased duration.",
-    type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Strength , value: 10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 3192552690
-  },
-  [ModOrAbility.ThreadOfEvolution]: {
-    id: ModOrAbility.ThreadOfEvolution,
-    name: "Thread Of Evolution",
-    description: "Threadlings travel farther and deal additional damage.",
-    type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Intellect , value: 10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 4208512211
-  },
-  [ModOrAbility.ThreadOfFinality]: {
-    id: ModOrAbility.ThreadOfFinality,
-    name: "Thread Of Finality",
-    description: "Finisher final blows create Threadlings.",
-    type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Recovery , value: 10}],
-    cost: 1,
-    requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 4208512217
-  },
+  /* Strand */
   [ModOrAbility.ThreadOfFury]: {
     id: ModOrAbility.ThreadOfFury,
-    name: "Thread Of Fury",
+    name: "Thread of Fury",
     description: "Damaging targets with a Tangle grants melee energy.",
     type: ModifierType.Strand,
     bonus: [{stat: ArmorStat.Strength , value: -10}],
@@ -558,56 +405,84 @@ export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 4208512219
   },
-  [ModOrAbility.ThreadOfGeneration]: {
-    id: ModOrAbility.ThreadOfGeneration,
-    name: "Thread Of Generation",
-    description: "Dealing damage generates grenade energy.",
+  [ModOrAbility.ThreadOfAscent]: {
+    id: ModOrAbility.ThreadOfAscent,
+    name: "Thread of Ascent",
+    description: "Activating your grenade ability reloads your equipped weapon and grants bonus airborne effectiveness and handling for a short duration",
     type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Discipline , value: -10}],
+    bonus: [{stat: ArmorStat.Mobility, value: 10}],
     cost: 1,
     requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 3192552691
+    hash: 4208512216
   },
-  [ModOrAbility.ThreadOfTransmutation]: {
-    id: ModOrAbility.ThreadOfTransmutation,
-    name: "Thread Of Transmutation",
-    description: "While you have Woven Mail, weapon final blows create a Tangle.",
+  [ModOrAbility.ThreadOfFinality]: {
+    id: ModOrAbility.ThreadOfFinality,
+    name: "Thread of Finality",
+    description: "Finisher final blows create Threadlings.",
     type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Strength , value: 10}],
+    bonus: [{stat: ArmorStat.Recovery, value: 10}],
     cost: 1,
     requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 4208512221
+    hash: 4208512217
   },
   [ModOrAbility.ThreadOfWarding]: {
     id: ModOrAbility.ThreadOfWarding,
-    name: "Thread Of Warding",
+    name: "Thread of Warding",
     description: "Picking up an Orb of Power grants Woven Mail.",
     type: ModifierType.Strand,
-    bonus: [{stat: ArmorStat.Resilience , value: -10}],
+    bonus: [{stat: ArmorStat.Resilience, value: -10}],
     cost: 1,
     requiredArmorAffinity: DestinyEnergyType.Any,
     hash: 4208512222
   },
-
-  // Retrofit mods
-  [ModOrAbility.MobileRetrofit]: {
-    id: ModOrAbility.MobileRetrofit,
-    name: "Mobile Retrofit",
-    description: "Adds a constant boost of +5 to your mobility.",
-    type: ModifierType.RetrofitMods,
-    bonus: [{stat: ArmorStat.Mobility , value: 5}],
-    cost: 3,
+  [ModOrAbility.ThreadOfTransmutation]: {
+    id: ModOrAbility.ThreadOfTransmutation,
+    name: "Thread of Transmutation",
+    description: "While you have Woven Mail, weapon final blows create a Tangle",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Strength, value: 10}],
+    cost: 1,
     requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 4058375012
+    hash: 4208512221
   },
-  [ModOrAbility.ResilientRetrofit]: {
-    id: ModOrAbility.ResilientRetrofit,
-    name: "Resilient Retrofit",
-    description: "Adds a constant boost of +5 to your resilience.",
-    type: ModifierType.RetrofitMods,
-    bonus: [{stat: ArmorStat.Resilience , value: 5}],
-    cost: 4,
+  [ModOrAbility.ThreadOfEvolution]: {
+    id: ModOrAbility.ThreadOfEvolution,
+    name: "Thread of Evolution",
+    description: "Threadlings travel farther and deal additional damage.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Intellect, value: 10}],
+    cost: 1,
     requiredArmorAffinity: DestinyEnergyType.Any,
-    hash: 2092805627
+    hash: 4208512211
+  },
+  [ModOrAbility.ThreadOfBinding]: {
+    id: ModOrAbility.ThreadOfBinding,
+    name: "Thread of Binding",
+    description: "Super final blows emit a suspending burst from the target.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Resilience, value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552688
+  },
+  [ModOrAbility.ThreadOfGeneration]: {
+    id: ModOrAbility.ThreadOfGeneration,
+    name: "Thread of Generation",
+    description: "Dealing damage generates grenade energy.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Discipline, value: -10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552691
+  },
+  [ModOrAbility.ThreadOfContinuity]: {
+    id: ModOrAbility.ThreadOfContinuity,
+    name: "Thread of Continuity",
+    description: "Suspend, unravel, and sever effects applied to targets have increased duration.",
+    type: ModifierType.Strand,
+    bonus: [{stat: ArmorStat.Strength, value: 10}],
+    cost: 1,
+    requiredArmorAffinity: DestinyEnergyType.Any,
+    hash: 3192552690
   },
 }
