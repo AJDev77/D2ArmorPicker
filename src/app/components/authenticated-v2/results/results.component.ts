@@ -21,6 +21,7 @@ import {takeUntil} from "rxjs/operators";
 
 
 export interface ResultDefinition {
+  artificeMods: number[],
   exotic: undefined | [{
     icon: string,
     name: string,

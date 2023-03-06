@@ -116,7 +116,7 @@
     </ng-container>
     <!-- Class Item -->
     <tr *ngIf="config_assumeClassItemMasterworked">
-      <td #tooltip="matTooltip" class="item-name-mw" matTooltip='Class item should be masterworked.'>Any Class Item {{findClassArtifice()}}</td>
+      <td #tooltip="matTooltip" class="item-name-mw" matTooltip='Class item should be masterworked.'>Class Item</td>
       <td class="text-mw">{{2}}</td>
       <td class="text-mw">{{2}}</td>
       <td class="text-mw">{{2}}</td>
@@ -272,6 +272,28 @@
       </td>
       <td *ngVar="mods | count:StatModifier.MAJOR_STRENGTH as count">
         <span *ngIf="count > 0" class="positive">{{count}}×10</span>
+      </td>
+    </tr>
+     <!-- +Artifice -->
+     <tr *ngVar="element?.artificeMods as mods">
+      <td>Artifice Mods</td>
+      <td *ngVar="mods | count:0 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+      </td>
+      <td *ngVar="mods | count:1 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+      </td>
+      <td *ngVar="mods | count:2 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+      </td>
+      <td *ngVar="mods | count:3 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+      </td>
+      <td *ngVar="mods | count:4 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+      </td>
+      <td *ngVar="mods | count:5 as count">
+        <span *ngIf="count > 0" class="positive">{{count}}×3</span>
       </td>
     </tr>
 
@@ -505,6 +527,81 @@
             </ng-container>
             <!-- /STRENGTH -->
           </ul>
+          <ul *ngVar="element?.artificeMods as mods">
+            <!-- MOBILITY -->
+              <ng-container *ngVar="mods | count:0 as artificeCount">
+                <li *ngIf="artificeCount > 0" class="positive">
+                  <span>{{artificeCount}} artifice</span>
+                  Mobility Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+                </li>
+            </ng-container>
+            <!-- /MOBILITY -->
+            <!-- RESILIENCE -->
+            <ng-container *ngVar="mods | count:1 as artificeCount">
+              <li *ngIf="artificeCount > 0" class="positive">
+                <span>{{artificeCount}} artifice</span>
+                Resilience Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+              </li>
+          </ng-container>
+            <!-- /RESILIENCE -->
+            <!-- RECOVERY -->
+            <ng-container *ngVar="mods | count:2 as artificeCount">
+              <li *ngIf="artificeCount > 0" class="positive">
+                <span>{{artificeCount}} artifice</span>
+                Recovery Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+              </li>
+          </ng-container>
+            <!-- /RECOVERY -->
+            <!-- DISCIPLINE -->
+            <ng-container *ngVar="mods | count:3 as artificeCount">
+              <li *ngIf="artificeCount > 0" class="positive">
+                <span>{{artificeCount}} artifice</span>
+                Discipline Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+              </li>
+          </ng-container>
+            <!-- /DISCIPLINE -->
+            <!-- INTELLECT -->
+            <ng-container *ngVar="mods | count:4 as artificeCount">
+              <li *ngIf="artificeCount > 0" class="positive">
+                <span>{{artificeCount}} artifice</span>
+                Intellect Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+              </li>
+          </ng-container>
+            <!-- /INTELLECT -->
+            <!-- STRENGTH -->
+            <ng-container *ngVar="mods | count:5 as artificeCount">
+              <li *ngIf="artificeCount > 0" class="positive">
+                <span>{{artificeCount}} artifice</span>
+                Strength Mod<ng-container *ngIf="(artificeCount) > 1">s</ng-container>
+              </li>
+          </ng-container>
+            <!-- /STRENGTH -->
+          </ul>
+
+
+<!-- +Artifice
+<tr *ngVar="element?.artificeMods as mods">
+  <td>Artifice Mods</td>
+  <td *ngVar="mods | count:0 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+  <td *ngVar="mods | count:1 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+  <td *ngVar="mods | count:2 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+  <td *ngVar="mods | count:3 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+  <td *ngVar="mods | count:4 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+  <td *ngVar="mods | count:5 as count">
+    <span *ngIf="count > 0" class="positive">{{count}}×3</span>
+  </td>
+</tr> -->
+
 
         </li>
         <li *ngIf="config_enabledMods.length > 0">

@@ -41,6 +41,22 @@ export interface DimStatCheckResult {
   totalTime: number,
 };
 
+// old general stat mod conversion
+let modConversion = new Map<number, number>();
+modConversion.set(204137529, 1703647492) //minor mobility
+modConversion.set(3961599962, 4183296050) //major mobility
+modConversion.set(3682186345, 2532323436) //minor resilience
+modConversion.set(2850583378, 1180408010) //major resilience
+modConversion.set(555005975, 1237786518) //minor recovery
+modConversion.set(2645858828, 4204488676) //major recovery
+modConversion.set(2623485440, 4021790309) //minor discipline
+modConversion.set(4048838440, 1435557120) //major discipline
+modConversion.set(1227870362, 350061697) //minor intellect
+modConversion.set(3355995799, 2724608735) //major intellect
+modConversion.set(3699676109, 2639422088) //minor strength
+modConversion.set(3253038666, 4287799666) //major strength
+
+
 @Injectable({
     providedIn: 'root'
   })
@@ -211,14 +227,19 @@ export class DimApiService {
           [2453351420, ModifierType.Void],
           [2240888816, ModifierType.Solar],
           [2328211300, ModifierType.Arc],
+          [3785442599, ModifierType.Strand],
+
           [613647804, ModifierType.Stasis],
           [2842471112, ModifierType.Void],
           [2550323932, ModifierType.Solar],
           [2932390016, ModifierType.Arc],
+          [242419885, ModifierType.Strand],
+
           [3291545503, ModifierType.Stasis],
           [2849050827, ModifierType.Void],
           [3941205951, ModifierType.Solar],
-          [3168997075, ModifierType.Arc]
+          [3168997075, ModifierType.Arc],
+          [4204413574, ModifierType.Strand]
         ])
         for (let value of this.dimLoadouts) {
             var index = oldDIMIDs.indexOf(value.id);
@@ -308,8 +329,13 @@ export class DimApiService {
 
           if (value.parameters?.mods != undefined) {
           for (let mod of value.parameters?.mods) {
+            let modHash: number = mod;
+            let modConvert = modConversion.get(modHash);
+            if (modConvert != undefined) {
+              modHash = modConvert;
+            }
             // FIND GENERAL STAT MODS
-            let foundMod = Object.values(STAT_MOD_VALUES).find((v) => v[3] == mod)
+            let foundMod = Object.values(STAT_MOD_VALUES).find((v) => v[3] == modHash)
         
             if (foundMod != undefined) {
               if (foundMod[0] == ArmorStat.Mobility) {
@@ -338,7 +364,7 @@ export class DimApiService {
             // Therefore, if a user has one of those mods on, it will give them
             // the stat boost regardless.
 
-            let specialMod = Object.values(ModInformation).find((v) => v.hash == mod)
+            let specialMod = Object.values(ModInformation).find((v) => v.hash == modHash)
 
             if (specialMod != undefined) {
                 specialMods.push(specialMod.id)
@@ -365,6 +391,21 @@ export class DimApiService {
                       }
                     }
                   })
+            }
+
+            // placeholder for artifice mods
+            if (mod == 2322202118) {
+              mobility += 3;
+            } else if (mod == 199176566) {
+              resilience += 3;
+            } else if (mod == 539459624) {
+              recovery += 3
+            } else if (mod == 617569843) {
+              discipline += 3
+            } else if (mod == 3160845295) {
+              intellect += 3
+            } else if (mod == 2507624050) {
+              strength += 3
             }
           }
         }

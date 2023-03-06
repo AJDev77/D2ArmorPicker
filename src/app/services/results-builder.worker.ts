@@ -6,8 +6,7 @@ import {FORCE_USE_NO_EXOTIC} from "../data/constants";
 import {ModInformation} from "../data/ModInformation";
 import {ArmorPerkOrSlot, ArmorStat, SpecialArmorStat, STAT_MOD_VALUES, StatModifier} from "../data/enum/armor-stat";
 import {IManifestArmor} from "../data/types/IManifestArmor";
-import {DestinyClass, DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
-import { filter } from "rxjs/operators";
+import {DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
 
 declare global {
   interface Array<T> {
@@ -314,15 +313,7 @@ function prepareConstantAvailableModslots(config: BuildConfiguration) {
   return availableModCost.where(d => d > 0).sort()
 }
 
-var currentTask = {
-  cancel: false
-}
-
-onmessage = event => {
-    performTask(currentTask, event.data)
-}
-
-async function performTask(task:any, data: any) {
+addEventListener('message', async ({data}) => {
   const startTime = Date.now();
   console.debug("START RESULTS BUILDER 2")
   console.time("total")
@@ -343,7 +334,7 @@ async function performTask(task:any, data: any) {
     custom = custom.filter(i => i.clazz.valueOf() == config.characterClass.valueOf())
     console.log("Vendors filtered", custom)
     items.push(...custom)
-    
+
   items = items
     // only armor :)
     .filter(item => item.slot != ArmorSlot.ArmorSlotNone)
@@ -389,6 +380,13 @@ async function performTask(task:any, data: any) {
   let gauntlets = items.filter(i => i.slot == ArmorSlot.ArmorSlotGauntlet).map(d => new ItemCombination([d]))
   let chests = items.filter(i => i.slot == ArmorSlot.ArmorSlotChest).map(d => new ItemCombination([d]))
   let legs = items.filter(i => i.slot == ArmorSlot.ArmorSlotLegs).map(d => new ItemCombination([d]))
+  let classArtificeAvailable = false;
+  if (items.find(i => i.slot == ArmorSlot.ArmorSlotClass && i.perk == ArmorPerkOrSlot.SlotArtificer) != undefined) {
+    classArtificeAvailable = true;
+  }
+
+  console.log(helmets)
+  
   // new Set(items.filter(i => i.slot == ArmorSlot.ArmorSlotClass).map(i => [i.energyAffinity, i.perk]))
 
 
@@ -429,6 +427,7 @@ async function performTask(task:any, data: any) {
     }, new Map<ArmorPerkOrSlot, Set<DestinyEnergyType>>())
 
   if (selectedExotics.length > 1) {
+    console.log("WAS HERE")
     let armorSlots = [...new Set(selectedExotics.map(i => i.slot))]
 
     let items1 = items.filter(i => i.hash == selectedExotics[0].hash)
@@ -573,40 +572,87 @@ async function performTask(task:any, data: any) {
             if (!energyCheckResult.valid) continue;
             requiredClassElement = energyCheckResult.requiredClassItemElement;
           }
-          for (let i = 0; i < 6; i++) {
-            let newConstantBonus = [...constantBonus];
-            newConstantBonus[i] += 3
-            const result = handlePermutation(runtime, config, helmet, gauntlet, chest, leg,
-              newConstantBonus, constantAvailableModslots.slice(), doNotOutput);
-            // Only add 50k to the list if the setting is activated.
-            // We will still calculate the rest so that we get accurate results for the runtime values
-            if (result != null) {
-              if (results.find((e) => e.modCost == result.modCost && e.modCount == result.modCount 
-              && e.stats[0] == result.stats[0] && e.stats[1] == result.stats[1] && e.stats[2] == result.stats[2] 
-              && e.stats[3] == result.stats[3] && e.stats[4] == result.stats[4] && e.stats[5] == result.stats[5]) == undefined){
-              totalResults++;
-              if (result !== "DONOTSEND") {
-                result["classItem"] = {
-                  perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None,
-                  affinity: requiredClassElement,
-                }
 
-                results.push(result)
-                resultsLength++;
-                listedResults++;
-                doNotOutput = doNotOutput || (config.limitParsedResults && listedResults >= 5e4 / threadSplit.count) || listedResults >= 1e6 / threadSplit.count
-              }
-            }
-            //}
-            if (resultsLength >= 5000) {
-              // @ts-ignore
-              postMessage({runtime, results, done: false, total: 0});
-              results = []
-              resultsLength = 0;
-            }
+
+          let numArtifice = 0
+          //let slots = [0, 1, 2, 3, 4, 5]
+
+          if (helmet.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+            numArtifice++
           }
+          if (gauntlet.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+            numArtifice++
+          }
+          if (chest.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+            numArtifice++
+          }
+          if (leg.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+            numArtifice++
+          }
+          if (classArtificeAvailable) {
+            numArtifice++
           }
           
+        
+          //let artificeCombos = cartesianProduct(possibleArtifice)
+          //if (numArtifice == 2 && helmet.perks[0] != ArmorPerkOrSlot.SlotArtificer) console.log("NumArtifice")
+          let artificeCombos = []
+          for (let i = 0; i < numArtifice; i++) {
+            artificeCombos.push(...comboTest[i])
+          }
+          // for (let i = 1; i <= numArtifice; i++) {
+          //   artificeCombos.push(...combRep(slots, i))
+          // }
+          //let artificeCombos = combRep(slots, numArtifice)
+          // no artifice?
+
+          artificeCombos.push([])
+
+          let artificeResults = []
+          for (let combo of artificeCombos) {
+            //if (combo.length == 0) console.log("EMPTY COMBO")
+            let newConstant = [...constantBonus]
+            for (let bonusSlot of combo) {
+              //if (combo.length == 0) console.log("EMPTY COMBO")
+
+              newConstant[bonusSlot] += 3
+            }
+          // } old for end
+
+
+          const result = handlePermutation(runtime, config, helmet, gauntlet, chest, leg,
+            newConstant, constantAvailableModslots.slice(), doNotOutput, combo);
+          // Only add 50k to the list if the setting is activated.
+          // We will still calculate the rest so that we get accurate results for the runtime values
+          if (result != null) {
+            totalResults++;
+            if (result !== "DONOTSEND") {
+              if (artificeResults.find((e) => e.modCost == result.modCost && e.modCount == result.modCount 
+              && Math.floor(e.stats[0]/10) == Math.floor(result.stats[0]/10) && Math.floor(e.stats[1]/10) == Math.floor(result.stats[1]/10) && Math.floor(e.stats[2]/10) == Math.floor(result.stats[2]/10) 
+              && Math.floor(e.stats[3]/10) == Math.floor(result.stats[3]/10) && Math.floor(e.stats[4]/10) == Math.floor(result.stats[4]/10) && Math.floor(e.stats[5]/10) == Math.floor(result.stats[5]/10)) == undefined){
+              result["classItem"] = {
+                perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None,
+                affinity: requiredClassElement,
+              }
+
+              results.push(result)
+              artificeResults.push(result)
+              resultsLength++;
+              listedResults++;
+              doNotOutput = doNotOutput || (config.limitParsedResults && listedResults >= 5e4 / threadSplit.count) || listedResults >= 1e6 / threadSplit.count
+            } else {
+              totalResults--
+            }
+          }
+          }
+          //}
+          if (resultsLength >= 5000) {
+            // @ts-ignore
+            postMessage({runtime, results, done: false, total: 0});
+            results = []
+            resultsLength = 0;
+          }
+        }// new for end
         }
       }
     }
@@ -628,16 +674,16 @@ async function performTask(task:any, data: any) {
       totalTime: Date.now() - startTime
     }
   });
-
-}
+})
 
 function getStatSum(items: ItemCombination[]): [number, number, number, number, number, number] {
-  let count = 0;
-  for (let idx = 0; idx < items.length; idx++) {
-    count += items[idx].items.length > 1 ? 1 : 0
-  }
+  // let count = 0;
+  // for (let idx = 0; idx < items.length; idx++) {
+  //   count += items[idx].items.length > 1 ? 1 : 0
+  // }
 
-  if (count <= 1)
+  // if (count <= 1){
+    
     return [
       items[0].mobility.min + items[1].mobility.min + items[2].mobility.min + items[3].mobility.min,
       items[0].resilience.min + items[1].resilience.min + items[2].resilience.min + items[3].resilience.min,
@@ -646,27 +692,29 @@ function getStatSum(items: ItemCombination[]): [number, number, number, number, 
       items[0].intellect.min + items[1].intellect.min + items[2].intellect.min + items[3].intellect.min,
       items[0].strength.min + items[1].strength.min + items[2].strength.min + items[3].strength.min,
     ]
-  else {
-    let normal = items.filter(d => d.items.length == 1)
-    let special: [number, number, number, number, number, number] = items.filter(d => d.items.length > 1).reduce((p, v) => {
-      p[0] = v.mobility.sum < p[0] ? v.mobility.sum : p[0];
-      p[1] = v.resilience.sum < p[1] ? v.resilience.sum : p[1];
-      p[2] = v.recovery.sum < p[2] ? v.recovery.sum : p[2];
-      p[3] = v.discipline.sum < p[3] ? v.discipline.sum : p[3];
-      p[4] = v.intellect.sum < p[4] ? v.intellect.sum : p[4];
-      p[5] = v.strength.sum < p[5] ? v.strength.sum : p[5];
-      return p;
-    }, [200, 200, 200, 200, 200, 200])
-    for (let n of normal) {
-      special[0] += n.mobility.min;
-      special[1] += n.resilience.min;
-      special[2] += n.recovery.min;
-      special[3] += n.discipline.min;
-      special[4] += n.intellect.min;
-      special[5] += n.strength.min;
-    }
-    return special;
-  }
+  // }
+  // else {
+  //   console.log("was here1")
+  //   let normal = items.filter(d => d.items.length == 1)
+  //   let special: [number, number, number, number, number, number] = items.filter(d => d.items.length > 1).reduce((p, v) => {
+  //     p[0] = v.mobility.sum < p[0] ? v.mobility.sum : p[0];
+  //     p[1] = v.resilience.sum < p[1] ? v.resilience.sum : p[1];
+  //     p[2] = v.recovery.sum < p[2] ? v.recovery.sum : p[2];
+  //     p[3] = v.discipline.sum < p[3] ? v.discipline.sum : p[3];
+  //     p[4] = v.intellect.sum < p[4] ? v.intellect.sum : p[4];
+  //     p[5] = v.strength.sum < p[5] ? v.strength.sum : p[5];
+  //     return p;
+  //   }, [200, 200, 200, 200, 200, 200])
+  //   for (let n of normal) {
+  //     special[0] += n.mobility.min;
+  //     special[1] += n.resilience.min;
+  //     special[2] += n.recovery.min;
+  //     special[3] += n.discipline.min;
+  //     special[4] += n.intellect.min;
+  //     special[5] += n.strength.min;
+  //   }
+  //   return special;
+  // }
 }
 
 class OrderedList<T> {
@@ -724,7 +772,8 @@ function handlePermutation(
   leg: ItemCombination,
   constantBonus: number[],
   availableModCost: number[],
-  doNotOutput = false
+  doNotOutput = false,
+  combo: number[]
 ): any {
   const items = [helmet, gauntlet, chest, leg]
 
@@ -1037,6 +1086,7 @@ function handlePermutation(
 
   const exotic = helmet.containsExotics ? helmet : gauntlet.containsExotics ? gauntlet : chest.containsExotics ? chest : leg.containsExotics ? leg : null
   return {
+    artificeMods: combo,
     exotic: exotic == null ? [] : [{
       icon: exotic?.items[0].icon,
       watermark: exotic?.items[0].watermarkIcon,
@@ -1073,6 +1123,23 @@ function handlePermutation(
   }
 }
 
+function combRep(arr: number[], l: number) {
+  if(l === void 0) l = arr.length; // Length of the combinations
+  var data = Array(l),             // Used to store state
+      results = [];                // Array of results
+  (function f(pos, start) {        // Recursive function
+    if(pos === l) {                // End reached
+      results.push(data.slice());  // Add a copy of data to results
+      return;
+    }
+    for(var i=start; i<arr.length; ++i) {
+      data[pos] = arr[i];          // Update data
+      f(pos+1, i);                 // Call f recursively
+    }
+  })(0, 0);                        // Start at index 0
+  return results;                  // Return results
+}
+
 
 function getSkillTier(stats: number[]) {
   return Math.floor(Math.min(100, stats[ArmorStat.Mobility]) / 10)
@@ -1091,3 +1158,10 @@ function getWaste(stats: number[]) {
     + (stats[ArmorStat.Intellect] > 100 ? stats[ArmorStat.Intellect] - 100 : stats[ArmorStat.Intellect] % 10)
     + (stats[ArmorStat.Strength] > 100 ? stats[ArmorStat.Strength] - 100 : stats[ArmorStat.Strength] % 10)
 }
+
+let comboTest = [[[0],[1],[2],[3],[4],[5]] ,
+[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,1],[1,2],[1,3],[1,4],[1,5],[2,2],[2,3],[2,4],[2,5],[3,3],[3,4],[3,5],[4,4],[4,5],[5,5]] ,
+[[0,0,0],[0,0,1],[0,0,2],[0,0,3],[0,0,4],[0,0,5],[0,1,1],[0,1,2],[0,1,3],[0,1,4],[0,1,5],[0,2,2],[0,2,3],[0,2,4],[0,2,5],[0,3,3],[0,3,4],[0,3,5],[0,4,4],[0,4,5],[0,5,5],[1,1,1],[1,1,2],[1,1,3],[1,1,4],[1,1,5],[1,2,2],[1,2,3],[1,2,4],[1,2,5],[1,3,3],[1,3,4],[1,3,5],[1,4,4],[1,4,5],[1,5,5],[2,2,2],[2,2,3],[2,2,4],[2,2,5],[2,3,3],[2,3,4],[2,3,5],[2,4,4],[2,4,5],[2,5,5],[3,3,3],[3,3,4],[3,3,5],[3,4,4],[3,4,5],[3,5,5],[4,4,4],[4,4,5],[4,5,5],[5,5,5]] ,
+[[0,0,0,0],[0,0,0,1],[0,0,0,2],[0,0,0,3],[0,0,0,4],[0,0,0,5],[0,0,1,1],[0,0,1,2],[0,0,1,3],[0,0,1,4],[0,0,1,5],[0,0,2,2],[0,0,2,3],[0,0,2,4],[0,0,2,5],[0,0,3,3],[0,0,3,4],[0,0,3,5],[0,0,4,4],[0,0,4,5],[0,0,5,5],[0,1,1,1],[0,1,1,2],[0,1,1,3],[0,1,1,4],[0,1,1,5],[0,1,2,2],[0,1,2,3],[0,1,2,4],[0,1,2,5],[0,1,3,3],[0,1,3,4],[0,1,3,5],[0,1,4,4],[0,1,4,5],[0,1,5,5],[0,2,2,2],[0,2,2,3],[0,2,2,4],[0,2,2,5],[0,2,3,3],[0,2,3,4],[0,2,3,5],[0,2,4,4],[0,2,4,5],[0,2,5,5],[0,3,3,3],[0,3,3,4],[0,3,3,5],[0,3,4,4],[0,3,4,5],[0,3,5,5],[0,4,4,4],[0,4,4,5],[0,4,5,5],[0,5,5,5],[1,1,1,1],[1,1,1,2],[1,1,1,3],[1,1,1,4],[1,1,1,5],[1,1,2,2],[1,1,2,3],[1,1,2,4],[1,1,2,5],[1,1,3,3],[1,1,3,4],[1,1,3,5],[1,1,4,4],[1,1,4,5],[1,1,5,5],[1,2,2,2],[1,2,2,3],[1,2,2,4],[1,2,2,5],[1,2,3,3],[1,2,3,4],[1,2,3,5],[1,2,4,4],[1,2,4,5],[1,2,5,5],[1,3,3,3],[1,3,3,4],[1,3,3,5],[1,3,4,4],[1,3,4,5],[1,3,5,5],[1,4,4,4],[1,4,4,5],[1,4,5,5],[1,5,5,5],[2,2,2,2],[2,2,2,3],[2,2,2,4],[2,2,2,5],[2,2,3,3],[2,2,3,4],[2,2,3,5],[2,2,4,4],[2,2,4,5],[2,2,5,5],[2,3,3,3],[2,3,3,4],[2,3,3,5],[2,3,4,4],[2,3,4,5],[2,3,5,5],[2,4,4,4],[2,4,4,5],[2,4,5,5],[2,5,5,5],[3,3,3,3],[3,3,3,4],[3,3,3,5],[3,3,4,4],[3,3,4,5],[3,3,5,5],[3,4,4,4],[3,4,4,5],[3,4,5,5],[3,5,5,5],[4,4,4,4],[4,4,4,5],[4,4,5,5],[4,5,5,5],[5,5,5,5]] ,
+[[0,0,0,0,0],[0,0,0,0,1],[0,0,0,0,2],[0,0,0,0,3],[0,0,0,0,4],[0,0,0,0,5],[0,0,0,1,1],[0,0,0,1,2],[0,0,0,1,3],[0,0,0,1,4],[0,0,0,1,5],[0,0,0,2,2],[0,0,0,2,3],[0,0,0,2,4],[0,0,0,2,5],[0,0,0,3,3],[0,0,0,3,4],[0,0,0,3,5],[0,0,0,4,4],[0,0,0,4,5],[0,0,0,5,5],[0,0,1,1,1],[0,0,1,1,2],[0,0,1,1,3],[0,0,1,1,4],[0,0,1,1,5],[0,0,1,2,2],[0,0,1,2,3],[0,0,1,2,4],[0,0,1,2,5],[0,0,1,3,3],[0,0,1,3,4],[0,0,1,3,5],[0,0,1,4,4],[0,0,1,4,5],[0,0,1,5,5],[0,0,2,2,2],[0,0,2,2,3],[0,0,2,2,4],[0,0,2,2,5],[0,0,2,3,3],[0,0,2,3,4],[0,0,2,3,5],[0,0,2,4,4],[0,0,2,4,5],[0,0,2,5,5],[0,0,3,3,3],[0,0,3,3,4],[0,0,3,3,5],[0,0,3,4,4],[0,0,3,4,5],[0,0,3,5,5],[0,0,4,4,4],[0,0,4,4,5],[0,0,4,5,5],[0,0,5,5,5],[0,1,1,1,1],[0,1,1,1,2],[0,1,1,1,3],[0,1,1,1,4],[0,1,1,1,5],[0,1,1,2,2],[0,1,1,2,3],[0,1,1,2,4],[0,1,1,2,5],[0,1,1,3,3],[0,1,1,3,4],[0,1,1,3,5],[0,1,1,4,4],[0,1,1,4,5],[0,1,1,5,5],[0,1,2,2,2],[0,1,2,2,3],[0,1,2,2,4],[0,1,2,2,5],[0,1,2,3,3],[0,1,2,3,4],[0,1,2,3,5],[0,1,2,4,4],[0,1,2,4,5],[0,1,2,5,5],[0,1,3,3,3],[0,1,3,3,4],[0,1,3,3,5],[0,1,3,4,4],[0,1,3,4,5],[0,1,3,5,5],[0,1,4,4,4],[0,1,4,4,5],[0,1,4,5,5],[0,1,5,5,5],[0,2,2,2,2],[0,2,2,2,3],[0,2,2,2,4],[0,2,2,2,5],[0,2,2,3,3],[0,2,2,3,4],[0,2,2,3,5],[0,2,2,4,4],[0,2,2,4,5],[0,2,2,5,5],[0,2,3,3,3],[0,2,3,3,4],[0,2,3,3,5],[0,2,3,4,4],[0,2,3,4,5],[0,2,3,5,5],[0,2,4,4,4],[0,2,4,4,5],[0,2,4,5,5],[0,2,5,5,5],[0,3,3,3,3],[0,3,3,3,4],[0,3,3,3,5],[0,3,3,4,4],[0,3,3,4,5],[0,3,3,5,5],[0,3,4,4,4],[0,3,4,4,5],[0,3,4,5,5],[0,3,5,5,5],[0,4,4,4,4],[0,4,4,4,5],[0,4,4,5,5],[0,4,5,5,5],[0,5,5,5,5],[1,1,1,1,1],[1,1,1,1,2],[1,1,1,1,3],[1,1,1,1,4],[1,1,1,1,5],[1,1,1,2,2],[1,1,1,2,3],[1,1,1,2,4],[1,1,1,2,5],[1,1,1,3,3],[1,1,1,3,4],[1,1,1,3,5],[1,1,1,4,4],[1,1,1,4,5],[1,1,1,5,5],[1,1,2,2,2],[1,1,2,2,3],[1,1,2,2,4],[1,1,2,2,5],[1,1,2,3,3],[1,1,2,3,4],[1,1,2,3,5],[1,1,2,4,4],[1,1,2,4,5],[1,1,2,5,5],[1,1,3,3,3],[1,1,3,3,4],[1,1,3,3,5],[1,1,3,4,4],[1,1,3,4,5],[1,1,3,5,5],[1,1,4,4,4],[1,1,4,4,5],[1,1,4,5,5],[1,1,5,5,5],[1,2,2,2,2],[1,2,2,2,3],[1,2,2,2,4],[1,2,2,2,5],[1,2,2,3,3],[1,2,2,3,4],[1,2,2,3,5],[1,2,2,4,4],[1,2,2,4,5],[1,2,2,5,5],[1,2,3,3,3],[1,2,3,3,4],[1,2,3,3,5],[1,2,3,4,4],[1,2,3,4,5],[1,2,3,5,5],[1,2,4,4,4],[1,2,4,4,5],[1,2,4,5,5],[1,2,5,5,5],[1,3,3,3,3],[1,3,3,3,4],[1,3,3,3,5],[1,3,3,4,4],[1,3,3,4,5],[1,3,3,5,5],[1,3,4,4,4],[1,3,4,4,5],[1,3,4,5,5],[1,3,5,5,5],[1,4,4,4,4],[1,4,4,4,5],[1,4,4,5,5],[1,4,5,5,5],[1,5,5,5,5],[2,2,2,2,2],[2,2,2,2,3],[2,2,2,2,4],[2,2,2,2,5],[2,2,2,3,3],[2,2,2,3,4],[2,2,2,3,5],[2,2,2,4,4],[2,2,2,4,5],[2,2,2,5,5],[2,2,3,3,3],[2,2,3,3,4],[2,2,3,3,5],[2,2,3,4,4],[2,2,3,4,5],[2,2,3,5,5],[2,2,4,4,4],[2,2,4,4,5],[2,2,4,5,5],[2,2,5,5,5],[2,3,3,3,3],[2,3,3,3,4],[2,3,3,3,5],[2,3,3,4,4],[2,3,3,4,5],[2,3,3,5,5],[2,3,4,4,4],[2,3,4,4,5],[2,3,4,5,5],[2,3,5,5,5],[2,4,4,4,4],[2,4,4,4,5],[2,4,4,5,5],[2,4,5,5,5],[2,5,5,5,5],[3,3,3,3,3],[3,3,3,3,4],[3,3,3,3,5],[3,3,3,4,4],[3,3,3,4,5],[3,3,3,5,5],[3,3,4,4,4],[3,3,4,4,5],[3,3,4,5,5],[3,3,5,5,5],[3,4,4,4,4],[3,4,4,4,5],[3,4,4,5,5],[3,4,5,5,5],[3,5,5,5,5],[4,4,4,4,4],[4,4,4,4,5],[4,4,4,5,5],[4,4,5,5,5],[4,5,5,5,5],[5,5,5,5,5]] ,
+[[0,0,0,0,0,0],[0,0,0,0,0,1],[0,0,0,0,0,2],[0,0,0,0,0,3],[0,0,0,0,0,4],[0,0,0,0,0,5],[0,0,0,0,1,1],[0,0,0,0,1,2],[0,0,0,0,1,3],[0,0,0,0,1,4],[0,0,0,0,1,5],[0,0,0,0,2,2],[0,0,0,0,2,3],[0,0,0,0,2,4],[0,0,0,0,2,5],[0,0,0,0,3,3],[0,0,0,0,3,4],[0,0,0,0,3,5],[0,0,0,0,4,4],[0,0,0,0,4,5],[0,0,0,0,5,5],[0,0,0,1,1,1],[0,0,0,1,1,2],[0,0,0,1,1,3],[0,0,0,1,1,4],[0,0,0,1,1,5],[0,0,0,1,2,2],[0,0,0,1,2,3],[0,0,0,1,2,4],[0,0,0,1,2,5],[0,0,0,1,3,3],[0,0,0,1,3,4],[0,0,0,1,3,5],[0,0,0,1,4,4],[0,0,0,1,4,5],[0,0,0,1,5,5],[0,0,0,2,2,2],[0,0,0,2,2,3],[0,0,0,2,2,4],[0,0,0,2,2,5],[0,0,0,2,3,3],[0,0,0,2,3,4],[0,0,0,2,3,5],[0,0,0,2,4,4],[0,0,0,2,4,5],[0,0,0,2,5,5],[0,0,0,3,3,3],[0,0,0,3,3,4],[0,0,0,3,3,5],[0,0,0,3,4,4],[0,0,0,3,4,5],[0,0,0,3,5,5],[0,0,0,4,4,4],[0,0,0,4,4,5],[0,0,0,4,5,5],[0,0,0,5,5,5],[0,0,1,1,1,1],[0,0,1,1,1,2],[0,0,1,1,1,3],[0,0,1,1,1,4],[0,0,1,1,1,5],[0,0,1,1,2,2],[0,0,1,1,2,3],[0,0,1,1,2,4],[0,0,1,1,2,5],[0,0,1,1,3,3],[0,0,1,1,3,4],[0,0,1,1,3,5],[0,0,1,1,4,4],[0,0,1,1,4,5],[0,0,1,1,5,5],[0,0,1,2,2,2],[0,0,1,2,2,3],[0,0,1,2,2,4],[0,0,1,2,2,5],[0,0,1,2,3,3],[0,0,1,2,3,4],[0,0,1,2,3,5],[0,0,1,2,4,4],[0,0,1,2,4,5],[0,0,1,2,5,5],[0,0,1,3,3,3],[0,0,1,3,3,4],[0,0,1,3,3,5],[0,0,1,3,4,4],[0,0,1,3,4,5],[0,0,1,3,5,5],[0,0,1,4,4,4],[0,0,1,4,4,5],[0,0,1,4,5,5],[0,0,1,5,5,5],[0,0,2,2,2,2],[0,0,2,2,2,3],[0,0,2,2,2,4],[0,0,2,2,2,5],[0,0,2,2,3,3],[0,0,2,2,3,4],[0,0,2,2,3,5],[0,0,2,2,4,4],[0,0,2,2,4,5],[0,0,2,2,5,5],[0,0,2,3,3,3],[0,0,2,3,3,4],[0,0,2,3,3,5],[0,0,2,3,4,4],[0,0,2,3,4,5],[0,0,2,3,5,5],[0,0,2,4,4,4],[0,0,2,4,4,5],[0,0,2,4,5,5],[0,0,2,5,5,5],[0,0,3,3,3,3],[0,0,3,3,3,4],[0,0,3,3,3,5],[0,0,3,3,4,4],[0,0,3,3,4,5],[0,0,3,3,5,5],[0,0,3,4,4,4],[0,0,3,4,4,5],[0,0,3,4,5,5],[0,0,3,5,5,5],[0,0,4,4,4,4],[0,0,4,4,4,5],[0,0,4,4,5,5],[0,0,4,5,5,5],[0,0,5,5,5,5],[0,1,1,1,1,1],[0,1,1,1,1,2],[0,1,1,1,1,3],[0,1,1,1,1,4],[0,1,1,1,1,5],[0,1,1,1,2,2],[0,1,1,1,2,3],[0,1,1,1,2,4],[0,1,1,1,2,5],[0,1,1,1,3,3],[0,1,1,1,3,4],[0,1,1,1,3,5],[0,1,1,1,4,4],[0,1,1,1,4,5],[0,1,1,1,5,5],[0,1,1,2,2,2],[0,1,1,2,2,3],[0,1,1,2,2,4],[0,1,1,2,2,5],[0,1,1,2,3,3],[0,1,1,2,3,4],[0,1,1,2,3,5],[0,1,1,2,4,4],[0,1,1,2,4,5],[0,1,1,2,5,5],[0,1,1,3,3,3],[0,1,1,3,3,4],[0,1,1,3,3,5],[0,1,1,3,4,4],[0,1,1,3,4,5],[0,1,1,3,5,5],[0,1,1,4,4,4],[0,1,1,4,4,5],[0,1,1,4,5,5],[0,1,1,5,5,5],[0,1,2,2,2,2],[0,1,2,2,2,3],[0,1,2,2,2,4],[0,1,2,2,2,5],[0,1,2,2,3,3],[0,1,2,2,3,4],[0,1,2,2,3,5],[0,1,2,2,4,4],[0,1,2,2,4,5],[0,1,2,2,5,5],[0,1,2,3,3,3],[0,1,2,3,3,4],[0,1,2,3,3,5],[0,1,2,3,4,4],[0,1,2,3,4,5],[0,1,2,3,5,5],[0,1,2,4,4,4],[0,1,2,4,4,5],[0,1,2,4,5,5],[0,1,2,5,5,5],[0,1,3,3,3,3],[0,1,3,3,3,4],[0,1,3,3,3,5],[0,1,3,3,4,4],[0,1,3,3,4,5],[0,1,3,3,5,5],[0,1,3,4,4,4],[0,1,3,4,4,5],[0,1,3,4,5,5],[0,1,3,5,5,5],[0,1,4,4,4,4],[0,1,4,4,4,5],[0,1,4,4,5,5],[0,1,4,5,5,5],[0,1,5,5,5,5],[0,2,2,2,2,2],[0,2,2,2,2,3],[0,2,2,2,2,4],[0,2,2,2,2,5],[0,2,2,2,3,3],[0,2,2,2,3,4],[0,2,2,2,3,5],[0,2,2,2,4,4],[0,2,2,2,4,5],[0,2,2,2,5,5],[0,2,2,3,3,3],[0,2,2,3,3,4],[0,2,2,3,3,5],[0,2,2,3,4,4],[0,2,2,3,4,5],[0,2,2,3,5,5],[0,2,2,4,4,4],[0,2,2,4,4,5],[0,2,2,4,5,5],[0,2,2,5,5,5],[0,2,3,3,3,3],[0,2,3,3,3,4],[0,2,3,3,3,5],[0,2,3,3,4,4],[0,2,3,3,4,5],[0,2,3,3,5,5],[0,2,3,4,4,4],[0,2,3,4,4,5],[0,2,3,4,5,5],[0,2,3,5,5,5],[0,2,4,4,4,4],[0,2,4,4,4,5],[0,2,4,4,5,5],[0,2,4,5,5,5],[0,2,5,5,5,5],[0,3,3,3,3,3],[0,3,3,3,3,4],[0,3,3,3,3,5],[0,3,3,3,4,4],[0,3,3,3,4,5],[0,3,3,3,5,5],[0,3,3,4,4,4],[0,3,3,4,4,5],[0,3,3,4,5,5],[0,3,3,5,5,5],[0,3,4,4,4,4],[0,3,4,4,4,5],[0,3,4,4,5,5],[0,3,4,5,5,5],[0,3,5,5,5,5],[0,4,4,4,4,4],[0,4,4,4,4,5],[0,4,4,4,5,5],[0,4,4,5,5,5],[0,4,5,5,5,5],[0,5,5,5,5,5],[1,1,1,1,1,1],[1,1,1,1,1,2],[1,1,1,1,1,3],[1,1,1,1,1,4],[1,1,1,1,1,5],[1,1,1,1,2,2],[1,1,1,1,2,3],[1,1,1,1,2,4],[1,1,1,1,2,5],[1,1,1,1,3,3],[1,1,1,1,3,4],[1,1,1,1,3,5],[1,1,1,1,4,4],[1,1,1,1,4,5],[1,1,1,1,5,5],[1,1,1,2,2,2],[1,1,1,2,2,3],[1,1,1,2,2,4],[1,1,1,2,2,5],[1,1,1,2,3,3],[1,1,1,2,3,4],[1,1,1,2,3,5],[1,1,1,2,4,4],[1,1,1,2,4,5],[1,1,1,2,5,5],[1,1,1,3,3,3],[1,1,1,3,3,4],[1,1,1,3,3,5],[1,1,1,3,4,4],[1,1,1,3,4,5],[1,1,1,3,5,5],[1,1,1,4,4,4],[1,1,1,4,4,5],[1,1,1,4,5,5],[1,1,1,5,5,5],[1,1,2,2,2,2],[1,1,2,2,2,3],[1,1,2,2,2,4],[1,1,2,2,2,5],[1,1,2,2,3,3],[1,1,2,2,3,4],[1,1,2,2,3,5],[1,1,2,2,4,4],[1,1,2,2,4,5],[1,1,2,2,5,5],[1,1,2,3,3,3],[1,1,2,3,3,4],[1,1,2,3,3,5],[1,1,2,3,4,4],[1,1,2,3,4,5],[1,1,2,3,5,5],[1,1,2,4,4,4],[1,1,2,4,4,5],[1,1,2,4,5,5],[1,1,2,5,5,5],[1,1,3,3,3,3],[1,1,3,3,3,4],[1,1,3,3,3,5],[1,1,3,3,4,4],[1,1,3,3,4,5],[1,1,3,3,5,5],[1,1,3,4,4,4],[1,1,3,4,4,5],[1,1,3,4,5,5],[1,1,3,5,5,5],[1,1,4,4,4,4],[1,1,4,4,4,5],[1,1,4,4,5,5],[1,1,4,5,5,5],[1,1,5,5,5,5],[1,2,2,2,2,2],[1,2,2,2,2,3],[1,2,2,2,2,4],[1,2,2,2,2,5],[1,2,2,2,3,3],[1,2,2,2,3,4],[1,2,2,2,3,5],[1,2,2,2,4,4],[1,2,2,2,4,5],[1,2,2,2,5,5],[1,2,2,3,3,3],[1,2,2,3,3,4],[1,2,2,3,3,5],[1,2,2,3,4,4],[1,2,2,3,4,5],[1,2,2,3,5,5],[1,2,2,4,4,4],[1,2,2,4,4,5],[1,2,2,4,5,5],[1,2,2,5,5,5],[1,2,3,3,3,3],[1,2,3,3,3,4],[1,2,3,3,3,5],[1,2,3,3,4,4],[1,2,3,3,4,5],[1,2,3,3,5,5],[1,2,3,4,4,4],[1,2,3,4,4,5],[1,2,3,4,5,5],[1,2,3,5,5,5],[1,2,4,4,4,4],[1,2,4,4,4,5],[1,2,4,4,5,5],[1,2,4,5,5,5],[1,2,5,5,5,5],[1,3,3,3,3,3],[1,3,3,3,3,4],[1,3,3,3,3,5],[1,3,3,3,4,4],[1,3,3,3,4,5],[1,3,3,3,5,5],[1,3,3,4,4,4],[1,3,3,4,4,5],[1,3,3,4,5,5],[1,3,3,5,5,5],[1,3,4,4,4,4],[1,3,4,4,4,5],[1,3,4,4,5,5],[1,3,4,5,5,5],[1,3,5,5,5,5],[1,4,4,4,4,4],[1,4,4,4,4,5],[1,4,4,4,5,5],[1,4,4,5,5,5],[1,4,5,5,5,5],[1,5,5,5,5,5],[2,2,2,2,2,2],[2,2,2,2,2,3],[2,2,2,2,2,4],[2,2,2,2,2,5],[2,2,2,2,3,3],[2,2,2,2,3,4],[2,2,2,2,3,5],[2,2,2,2,4,4],[2,2,2,2,4,5],[2,2,2,2,5,5],[2,2,2,3,3,3],[2,2,2,3,3,4],[2,2,2,3,3,5],[2,2,2,3,4,4],[2,2,2,3,4,5],[2,2,2,3,5,5],[2,2,2,4,4,4],[2,2,2,4,4,5],[2,2,2,4,5,5],[2,2,2,5,5,5],[2,2,3,3,3,3],[2,2,3,3,3,4],[2,2,3,3,3,5],[2,2,3,3,4,4],[2,2,3,3,4,5],[2,2,3,3,5,5],[2,2,3,4,4,4],[2,2,3,4,4,5],[2,2,3,4,5,5],[2,2,3,5,5,5],[2,2,4,4,4,4],[2,2,4,4,4,5],[2,2,4,4,5,5],[2,2,4,5,5,5],[2,2,5,5,5,5],[2,3,3,3,3,3],[2,3,3,3,3,4],[2,3,3,3,3,5],[2,3,3,3,4,4],[2,3,3,3,4,5],[2,3,3,3,5,5],[2,3,3,4,4,4],[2,3,3,4,4,5],[2,3,3,4,5,5],[2,3,3,5,5,5],[2,3,4,4,4,4],[2,3,4,4,4,5],[2,3,4,4,5,5],[2,3,4,5,5,5],[2,3,5,5,5,5],[2,4,4,4,4,4],[2,4,4,4,4,5],[2,4,4,4,5,5],[2,4,4,5,5,5],[2,4,5,5,5,5],[2,5,5,5,5,5],[3,3,3,3,3,3],[3,3,3,3,3,4],[3,3,3,3,3,5],[3,3,3,3,4,4],[3,3,3,3,4,5],[3,3,3,3,5,5],[3,3,3,4,4,4],[3,3,3,4,4,5],[3,3,3,4,5,5],[3,3,3,5,5,5],[3,3,4,4,4,4],[3,3,4,4,4,5],[3,3,4,4,5,5],[3,3,4,5,5,5],[3,3,5,5,5,5],[3,4,4,4,4,4],[3,4,4,4,4,5],[3,4,4,4,5,5],[3,4,4,5,5,5],[3,4,5,5,5,5],[3,5,5,5,5,5],[4,4,4,4,4,4],[4,4,4,4,4,5],[4,4,4,4,5,5],[4,4,4,5,5,5],[4,4,5,5,5,5],[4,5,5,5,5,5],[5,5,5,5,5,5]]]
