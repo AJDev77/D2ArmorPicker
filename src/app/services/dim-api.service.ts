@@ -86,11 +86,11 @@ export class DimApiService {
 
         } )
 
-        if (this.dimAccessToken
+        if (this.isAuthenticated()
           && Date.now() < this.dimRefreshExpiringAt
           && Date.now() > (this.lastRefresh + timing)) {
           return await this.generateTokens()
-        } else if (!this.dimAccessToken) {
+        } else if (!this.isAuthenticated()) {
           console.log("Auto refresh when don't have auth token, trying to get...")
           this.generateTokens()
         }
