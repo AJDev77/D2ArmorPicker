@@ -6,11 +6,11 @@ import {FORCE_USE_NO_EXOTIC} from "../data/constants";
 import {ModInformation} from "../data/ModInformation";
 import {ArmorPerkOrSlot, ArmorStat, SpecialArmorStat, STAT_MOD_VALUES, StatModifier} from "../data/enum/armor-stat";
 import {IManifestArmor} from "../data/types/IManifestArmor";
-import {TierType} from "bungie-api-ts/destiny2";
+import {DestinyEnergyType, TierType} from "bungie-api-ts/destiny2";
 
 declare global {
   interface Array<T> {
-    where(o: (val: T, index: number) => boolean): T[];
+    where(o: (val: T) => boolean): T[];
 
     addSorted(o: T): T[];
   }
@@ -54,7 +54,7 @@ Array.prototype.where = Array.prototype.where || function (predicate: any) {
   for (; i < len; i++) {
     // @ts-ignore
     var item = this[i];
-    if (predicate(item, i)) {
+    if (predicate(item)) {
       results.push(item);
     }
   }
@@ -74,7 +74,7 @@ interface MinMaxSum {
 }
 
 // Represents one item, or the combined range of two items
-export class ItemCombination {
+class ItemCombination {
   items: IInventoryArmor[] = [];
 
   mobility: MinMaxSum = {min: 0, max: 0, sum: 0}
@@ -300,11 +300,10 @@ addEventListener('message', async ({data}) => {
   let chests = items.filter(i => i.slot == ArmorSlot.ArmorSlotChest).map(d => new ItemCombination([d]))
   let legs = items.filter(i => i.slot == ArmorSlot.ArmorSlotLegs).map(d => new ItemCombination([d]))
   let classArtificeAvailable = false;
-  if (items.find(i => i.slot == ArmorSlot.ArmorSlotClass && i.perk == ArmorPerkOrSlot.SlotArtificer) != undefined) {
+  if (items.find(i => i.slot == ArmorSlot.ArmorSlotClass && i.perk == ArmorPerkOrSlot.SlotArtifice) != undefined) {
     classArtificeAvailable = true;
   }
 
-  console.log(helmets)
   
   // new Set(items.filter(i => i.slot == ArmorSlot.ArmorSlotClass).map(i => [i.energyAffinity, i.perk]))
 
@@ -335,13 +334,102 @@ addEventListener('message', async ({data}) => {
   let classItems = items.filter(i => i.slot == ArmorSlot.ArmorSlotClass);
   let availableClassItemPerkTypes = new Set(classItems.map(d => d.perk));
 
-  console.debug("items", JSON.stringify({
-    helmets: helmets.length,
-    gauntlets: gauntlets.length,
-    chests: chests.length,
-    legs: legs.length,
+  if (selectedExotics.length > 1) {
+    let armorSlots = [...new Set(selectedExotics.map(i => i.slot))]
+
+    let items1 = items.filter(i => i.hash == selectedExotics[0].hash)
+    let items2 = items.filter(i => i.hash == selectedExotics[1].hash)
+    // handle same socket
+    if (armorSlots.length == 1) {
+      let permutations = []
+      for (let i1 of items1) {
+        for (let i2 of items2) {
+          permutations.push(new ItemCombination([i1, i2]))
+        }
+      }
+
+      switch (armorSlots[0]) {
+        case ArmorSlot.ArmorSlotHelmet:
+          helmets = permutations;
+          gauntlets = gauntlets.filter(d => !d.containsExotics)
+          chests = chests.filter(d => !d.containsExotics)
+          legs = legs.filter(d => !d.containsExotics)
+          break;
+        case ArmorSlot.ArmorSlotGauntlet:
+          gauntlets = permutations;
+          helmets = helmets.filter(d => !d.containsExotics)
+          chests = chests.filter(d => !d.containsExotics)
+          legs = legs.filter(d => !d.containsExotics)
+          break;
+        case ArmorSlot.ArmorSlotChest:
+          chests = permutations;
+          helmets = helmets.filter(d => !d.containsExotics)
+          gauntlets = gauntlets.filter(d => !d.containsExotics)
+          legs = legs.filter(d => !d.containsExotics)
+          break;
+        case ArmorSlot.ArmorSlotLegs:
+          legs = permutations;
+          helmets = helmets.filter(d => !d.containsExotics)
+          gauntlets = gauntlets.filter(d => !d.containsExotics)
+          chests = chests.filter(d => !d.containsExotics)
+          break;
+      }
+    } else if (armorSlots.length == 2) {
+      /**
+       * TODO!!!!
+       * While the current solution works, it is nowhere near perfect!
+       * Currently I only investigate [all skullforts * all leg helmets] vs [all cuirass * all leg chest pieces] (for example).
+       * But I have to use [all skullforts * all leg. chest pieces] vs [all leg helmets * all cuirass].
+       * As those are not in the same slot this will be pain. PAIN. I tell you, future Mijago, this'll be pain.
+       */
+      let legendary1 = items.filter(i => i.slot == selectedExotics[0].slot && !i.isExotic)
+      let legendary2 = items.filter(i => i.slot == selectedExotics[1].slot && !i.isExotic)
+      let permutations1 = []
+      let permutations2 = []
+      for (let i1 of items1) {
+        for (let i2 of legendary2) {
+          permutations1.push(new ItemCombination([i1, i2]))
+        }
+      }
+      for (let i1 of items2) {
+        for (let i2 of legendary1) {
+          permutations2.push(new ItemCombination([i1, i2]))
+        }
+      }
+
+
+      helmets = helmets.filter(d => !d.containsExotics)
+      gauntlets = gauntlets.filter(d => !d.containsExotics)
+      chests = chests.filter(d => !d.containsExotics)
+      legs = legs.filter(d => !d.containsExotics)
+
+      if (armorSlots[0] === ArmorSlot.ArmorSlotHelmet) {
+        helmets = permutations1;
+      } else if (armorSlots[0] === ArmorSlot.ArmorSlotGauntlet) {
+        gauntlets = permutations1;
+      } else if (armorSlots[0] === ArmorSlot.ArmorSlotChest) {
+        chests = permutations1;
+      } else if (armorSlots[0] === ArmorSlot.ArmorSlotLegs) {
+        legs = permutations1;
+      }
+      if (armorSlots[1] === ArmorSlot.ArmorSlotHelmet) {
+        helmets = permutations2;
+      } else if (armorSlots[1] === ArmorSlot.ArmorSlotGauntlet) {
+        gauntlets = permutations2;
+      } else if (armorSlots[1] === ArmorSlot.ArmorSlotChest) {
+        chests = permutations2;
+      } else if (armorSlots[1] === ArmorSlot.ArmorSlotLegs) {
+        legs = permutations2;
+      }
+    }
+  }
+  console.debug("items", {
+    helmets,
+    gauntlets,
+    chests,
+    legs,
     availableClassItemTypes: availableClassItemPerkTypes
-  }))
+  })
 
 
   // runtime variables
@@ -354,7 +442,6 @@ addEventListener('message', async ({data}) => {
   const constantModslotRequirement = prepareConstantModslotRequirement(config);
   const constantAvailableModslots = prepareConstantAvailableModslots(config);
   const constHasOneExoticLength = selectedExotics.length <= 1
-  const hasArtificeClassItem = availableClassItemPerkTypes.has(ArmorPerkOrSlot.SlotArtifice)
 
 
   let results: any[] = []
@@ -380,19 +467,20 @@ addEventListener('message', async ({data}) => {
 
           const slotCheckResult = checkSlots(config, constantModslotRequirement, availableClassItemPerkTypes, helmet, gauntlet, chest, leg);
           if (!slotCheckResult.valid) continue;
+
           let numArtifice = 0
           //let slots = [0, 1, 2, 3, 4, 5]
 
-          if (helmet.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+          if (helmet.perks[0] == ArmorPerkOrSlot.SlotArtifice) {
             numArtifice++
           }
-          if (gauntlet.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+          if (gauntlet.perks[0] == ArmorPerkOrSlot.SlotArtifice) {
             numArtifice++
           }
-          if (chest.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+          if (chest.perks[0] == ArmorPerkOrSlot.SlotArtifice) {
             numArtifice++
           }
-          if (leg.perks[0] == ArmorPerkOrSlot.SlotArtificer) {
+          if (leg.perks[0] == ArmorPerkOrSlot.SlotArtifice) {
             numArtifice++
           }
           if (classArtificeAvailable) {
@@ -416,11 +504,8 @@ addEventListener('message', async ({data}) => {
 
           let artificeResults = []
           for (let combo of artificeCombos) {
-            //if (combo.length == 0) console.log("EMPTY COMBO")
             let newConstant = [...constantBonus]
             for (let bonusSlot of combo) {
-              //if (combo.length == 0) console.log("EMPTY COMBO")
-
               newConstant[bonusSlot] += 3
             }
           // } old for end
@@ -437,9 +522,7 @@ addEventListener('message', async ({data}) => {
               && Math.floor(e.stats[0]/10) == Math.floor(result.stats[0]/10) && Math.floor(e.stats[1]/10) == Math.floor(result.stats[1]/10) && Math.floor(e.stats[2]/10) == Math.floor(result.stats[2]/10) 
               && Math.floor(e.stats[3]/10) == Math.floor(result.stats[3]/10) && Math.floor(e.stats[4]/10) == Math.floor(result.stats[4]/10) && Math.floor(e.stats[5]/10) == Math.floor(result.stats[5]/10)) == undefined){
               result["classItem"] = {
-                // TODO really log the perk pls
-                //perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None
-                perk: ArmorPerkOrSlot.SlotArtifice
+                perk: slotCheckResult.requiredClassItemType ?? ArmorPerkOrSlot.None
               }
 
               results.push(result)
@@ -483,14 +566,7 @@ addEventListener('message', async ({data}) => {
   });
 })
 
-function getStatSum(items: ItemCombination[]): [number, number, number, number, number, number] {
-  // let count = 0;
-  // for (let idx = 0; idx < items.length; idx++) {
-  //   count += items[idx].items.length > 1 ? 1 : 0
-  // }
-
-  // if (count <= 1){
-    
+function getStatSum(items: ItemCombination[]): [number, number, number, number, number, number] {    
     return [
       items[0].mobility.min + items[1].mobility.min + items[2].mobility.min + items[3].mobility.min,
       items[0].resilience.min + items[1].resilience.min + items[2].resilience.min + items[3].resilience.min,
@@ -499,29 +575,6 @@ function getStatSum(items: ItemCombination[]): [number, number, number, number, 
       items[0].intellect.min + items[1].intellect.min + items[2].intellect.min + items[3].intellect.min,
       items[0].strength.min + items[1].strength.min + items[2].strength.min + items[3].strength.min,
     ]
-  // }
-  // else {
-  //   console.log("was here1")
-  //   let normal = items.filter(d => d.items.length == 1)
-  //   let special: [number, number, number, number, number, number] = items.filter(d => d.items.length > 1).reduce((p, v) => {
-  //     p[0] = v.mobility.sum < p[0] ? v.mobility.sum : p[0];
-  //     p[1] = v.resilience.sum < p[1] ? v.resilience.sum : p[1];
-  //     p[2] = v.recovery.sum < p[2] ? v.recovery.sum : p[2];
-  //     p[3] = v.discipline.sum < p[3] ? v.discipline.sum : p[3];
-  //     p[4] = v.intellect.sum < p[4] ? v.intellect.sum : p[4];
-  //     p[5] = v.strength.sum < p[5] ? v.strength.sum : p[5];
-  //     return p;
-  //   }, [200, 200, 200, 200, 200, 200])
-  //   for (let n of normal) {
-  //     special[0] += n.mobility.min;
-  //     special[1] += n.resilience.min;
-  //     special[2] += n.recovery.min;
-  //     special[3] += n.discipline.min;
-  //     special[4] += n.intellect.min;
-  //     special[5] += n.strength.min;
-  //   }
-  //   return special;
-  // }
 }
 
 class OrderedList<T> {
@@ -562,29 +615,15 @@ class OrderedList<T> {
       this.comparatorList.splice(idx, 1)
       this.length--;
     }
-    return idx != -1;
   }
 }
-
-const requiredZeroWasteChanges = [
-  [0, 0],
-  [0, 3],
-  [1, 1],
-  [1, 4],
-  [0, 2],
-  [1, 0],
-  [1, 3],
-  [0, 1],
-  [0, 4],
-  [1, 2],
-]
 
 /**
  * Returns null, if the permutation is invalid.
  * This code does not utilize fancy filters and other stuff.
  * This results in ugly code BUT it is way way WAY faster!
  */
-export function handlePermutation(
+function handlePermutation(
   runtime: any,
   config: BuildConfiguration,
   helmet: ItemCombination,
@@ -630,235 +669,87 @@ export function handlePermutation(
     if (config.minimumStatTiers[n].fixed && (stats[n] / 10) >= config.minimumStatTiers[n].value + 1)
       return null;
 
-  // get the amount of armor with artifice slot
-  let availableArtificeCount = items.filter(d => d.perks.indexOf(ArmorPerkOrSlot.SlotArtifice) > -1).length;
+  // required mods for each stat
+  const requiredMods = [
+    Math.ceil(Math.max(0, config.minimumStatTiers[0].value - stats[0] / 10)),
+    Math.ceil(Math.max(0, config.minimumStatTiers[1].value - stats[1] / 10)),
+    Math.ceil(Math.max(0, config.minimumStatTiers[2].value - stats[2] / 10)),
+    Math.ceil(Math.max(0, config.minimumStatTiers[3].value - stats[3] / 10)),
+    Math.ceil(Math.max(0, config.minimumStatTiers[4].value - stats[4] / 10)),
+    Math.ceil(Math.max(0, config.minimumStatTiers[5].value - stats[5] / 10)),
+  ]
 
-
-  if (hasArtificeClassItem)
-    availableArtificeCount += 1;
-
+  const requiredModsTotal = requiredMods[0] + requiredMods[1] + requiredMods[2] + requiredMods[3] + requiredMods[4] + requiredMods[5]
   const usedMods: OrderedList<StatModifier> = new OrderedList<StatModifier>(d => STAT_MOD_VALUES[d][2])
-  const usedArtifice: number[] = []
+  // only calculate mods if necessary. If we are already above the limit there's no reason to do the rest
+  if (requiredModsTotal > 5) return null;
 
+  let availableModCostLen = availableModCost.length;
+  if (requiredModsTotal > availableModCostLen) return null;
 
-  const usedModslot = [-1, -1, -1, -1, -1]
-  let fixLimit = 10;
+  if (requiredModsTotal > 0) {
+    // first, add mods that are necessary
+    for (let statId = 0; statId < 6; statId++) {
+      if (requiredMods[statId] == 0) continue;
 
-  for (let stat = 0; stat < 6 && fixLimit > 0; stat++) {
-    let distance = config.minimumStatTiers[stat as ArmorStat].value * 10 - stats[stat];
-    while (distance > 0) {
-      const modulo = distance % 10
-      if (modulo > 0 && modulo <= 3 && availableArtificeCount > 0) {
-        // initial artifice artifice mod
-        usedArtifice.push(stat * 3 + 3 as StatModifier);
-        availableArtificeCount--;
-        stats[stat] += 3;
-        distance -= 3;
-        continue;
+      // Add a minor mod in favor of a major mod, if the stat number ends at 5, 6, 7, 8, or 9.
+      // This saves slots AND reduces wasted stats.
+      const statDifference = stats[statId] % 10;
+      if (statDifference > 0 && statDifference % 10 >= 5) {
+        usedMods.insert((1 + (statId * 2)) as StatModifier)
+
+        requiredMods[statId]--;
+        stats[statId] += 5
       }
-      if (modulo > 0 && modulo <= 5) {
-        // initial minor
-        const minorCost = STAT_MOD_VALUES[stat * 3 + 1 as StatModifier][2];
-        let minorIdx = availableModCost.findIndex((d, i) => d >= minorCost && usedModslot[i] == -1);
-        if (minorIdx > -1) {
-          usedMods.insert(stat * 3 + 1 as StatModifier);
-          usedModslot[minorIdx] = stat * 3 + 1 as StatModifier;
-          stats[stat] += 5;
-          distance -= 5;
-          continue;
-        } else if (fixLimit > 0 && stat > 0) {
-          // check if there is an used artifice mod that can be replaced by a minor mod
-          let possibleIdx = usedArtifice.findIndex((d, i) => {
-            // only look to the left
-            if ((d / 3) - 1 >= stat) return false;
-            const minorCostAr = STAT_MOD_VALUES[d - 2 as StatModifier][2]
-            return availableModCost.findIndex((d, i) => d >= minorCostAr && usedModslot[i] == -1) > -1
-          })
-          if (possibleIdx > -1) {
-            const otherStat = (usedArtifice[possibleIdx] / 3) - 1
-            // set the artifice mod
-            usedArtifice[possibleIdx] = stat * 3 + 3 as StatModifier;
-            stats[otherStat] -= 3;
-            stats[stat] += 3;
-            // introduce a fix limit to prevent infinite loops
-            fixLimit -= 1;
-
-            // restart the loop. this allows the algo to re-shift artifice
-            // the break stops the internal loop
-            // by setting the stat to -1, we force it to start at the changed stat in the next iteration
-            stat = otherStat - 1;
-            break;
-          }
-        }
-      }
-
-
-      // find valid slots for major mods
-      const majorCost = STAT_MOD_VALUES[stat * 3 + 2 as StatModifier][2];
-      let majorIdx = availableModCost.findIndex((d, idx) => d >= majorCost && usedModslot[idx] == -1);
-      if (majorIdx > -1 && distance > 5) {
-        usedMods.insert(stat * 3 + 2 as StatModifier);
-        usedModslot[majorIdx] = stat * 3 + 2 as StatModifier;
-        stats[stat] += 10;
-        distance -= 10;
-        continue;
-      }
-      const minorCost = STAT_MOD_VALUES[stat * 3 + 1 as StatModifier][2];
-      let minorIdx = availableModCost.findIndex((d, i) => d >= minorCost && usedModslot[i] == -1);
-      if (minorIdx > -1) {
-        usedMods.insert(stat * 3 + 1 as StatModifier);
-        usedModslot[minorIdx] = stat * 3 + 1 as StatModifier;
-        stats[stat] += 5;
-        distance -= 5;
-        continue;
-      }
-      // artifice
-      const artificeId = stat * 3 + 3 as StatModifier
-      if (availableArtificeCount > 0) {
-        usedArtifice.push(artificeId);
-        availableArtificeCount--;
-        stats[stat] += 3;
-        distance -= 3;
-        continue;
-      }
-
-      // validate if we can shove around some artifice for a major
-      if (fixLimit > 0) {
-
-        const x = usedArtifice.where(k => k == artificeId).length
-        if (x >= 3 && stats[stat] % 10 == 9) {
-          // we can replace this with a major mod
-
-
-          // find a slot on another mod that is %10>0
-          // that means we can add +3/6/9 to it and still bring it to the next tier, while freeing a modslot
-          const possibleIdx = availableModCost.findIndex((d, i) => {
-            if (usedModslot[i] == -1) return false; // only used slots
-            const otherStat = STAT_MOD_VALUES[usedModslot[i] as StatModifier][0]
-            if (otherStat == stat) return false; // not the same stat ofc
-            if (d < majorCost) return false;
-            if (config.minimumStatTiers[otherStat].fixed)
-              return (stats[otherStat] % 10 > 0) &&
-                ((stats[otherStat] % 10) == 1 || (stats[otherStat] % 10) == 4 || (stats[otherStat] % 10) == 7)
-            else
-              return (stats[otherStat] % 10 > 0);
-          })
-          if (possibleIdx > -1) {
-            const cstat = STAT_MOD_VALUES[usedModslot[possibleIdx] as StatModifier][0]
-
-            stats[cstat] -= 10
-            stats[stat] += 10
-            // remove the artifice mods
-            for (let n = 0; n < 3; n++) {
-              const idx = usedArtifice.findIndex(d => d == artificeId)
-              usedArtifice.splice(idx, 1)
-              stats[stat] -= 3
-
-              if (n == 0 || stats[cstat] % 10 > 2) {
-                stats[cstat] += 3
-                usedArtifice.push(3*cstat+3 as StatModifier)
-              }
-            }
-
-            // now we overwrite the modslot with a major mod for the current stat
-            usedMods.remove(usedModslot[possibleIdx])
-            usedMods.insert(stat * 3 + 2 as StatModifier);
-            usedModslot[possibleIdx] = stat * 3 + 2 as StatModifier;
-
-            distance -= 1;
-
-            // introduce a fix limit to prevent infinite loops
-            fixLimit -= 1;
-
-            //stat = cstat-1;
-            continue
-          }
-        }
-      }
-
-      return
-    }
-  }
-
-
-  // find out the max possible stats
-  // by using minor, major and artifice mods
-  const possible100stats = []
-  for (let stat = 0; stat < 6; stat++) {
-    let newStat = stats[stat];
-    // Only execute the code if we are below 100. Minor edge case speedup.
-    if (stats[stat] < 100) {
-      const minorMod = stat * 3 + 1 as StatModifier;
-      const majorMod = stat * 3 + 2 as StatModifier;
-      const minorModCost = STAT_MOD_VALUES[minorMod][2];
-      const majorModCost = STAT_MOD_VALUES[majorMod][2];
-
-      const possibleMajor = availableModCost.filter((d, i) => d >= majorModCost && usedModslot[i] == -1).length;
-      const possibleMinor = availableModCost.filter((d, i) => d >= minorModCost && usedModslot[i] == -1).length - possibleMajor;
-
-      const maxBonus = availableArtificeCount * 3 + possibleMinor * 5 + possibleMajor * 10;
-      newStat = Math.min(100, stats[stat] + maxBonus);
-    }
-
-    if (newStat > runtime.maximumPossibleTiers[stat])
-      runtime.maximumPossibleTiers[stat] = newStat;
-
-    if (newStat >= 100) {
-      possible100stats.push(stat);
-    }
-  }
-
-  if (possible100stats.length >= 3) {
-    // check if this build can reach 3x100 or 4x100
-    // for this, we have to check if there are enough mods and artifice slots available
-    // to reach three 100 stats or even four 100 stats
-    const statxs = possible100stats.map(d => [d, stats[d]]).sort((a, b) => b[1] - a[1])
-    // fill every stat to 100 with artifice mods and (available) major and minor mods
-    const usedModslotsForCheck = [0, 0, 0, 0, 0]
-    let availableArtificeForCheck = availableArtificeCount
-    for (let i = 0; i < statxs.length; i++) {
-      let statId = statxs[i][0];
-      const majorCost = STAT_MOD_VALUES[statId * 3 + 2 as StatModifier][2];
-      const minorCost = STAT_MOD_VALUES[statId * 3 + 1 as StatModifier][2];
-      while (statxs[i][1] < 100) {
-        const majorIdx = availableModCost.findIndex((d, idx) => d >= majorCost
-          && usedModslot[idx] == -1 && usedModslotsForCheck[idx] == 0);
-        if (majorIdx > -1) {
-          usedModslotsForCheck[majorIdx] = 1;
-          statxs[i][1] += 10;
-          continue;
-        }
-        const minorIdx = availableModCost.findIndex((d, idx) => d >= minorCost
-          && usedModslot[idx] == -1 && usedModslotsForCheck[idx] == 0);
-        if (minorIdx > -1) {
-          usedModslotsForCheck[minorIdx] = 1;
-          statxs[i][1] += 5;
-          continue;
-        }
-        if (availableArtificeForCheck > 0) {
-          availableArtificeForCheck--;
-          statxs[i][1] += 3;
-          continue;
-        }
-        break;
+      // Now fill the rest with major mods.
+      for (let n = 0; n < requiredMods[statId]; n++) {
+        usedMods.insert((2 + (statId * 2)) as StatModifier)
+        stats[statId] += 10
       }
     }
+    /**
+     *  Now we know how many major mods we need.
+     *  If the modslot limitation forces us to only use N major mods, we can simply replace
+     *  a major mod with two minor mods.
+     *  We'll do this until we either reach the usedMods length of 5 (the limit), or until all
+     *  modslot limitations are satisfied.
+     */
+    for (let i = 0; i < usedMods.length && usedMods.length <= 5; i++) {
+      const mod = usedMods.list[i];
 
-    // count 100s
-    const count100s = statxs.filter(d => d[1] >= 100).length;
-    if (count100s >= 3) {
-      runtime.statCombo3x100.add((1 << statxs[0][0]) + (1 << statxs[1][0]) + (1 << statxs[2][0]));
-      if (count100s >= 4) {
-        runtime.statCombo4x100.add((1 << statxs[0][0]) + (1 << statxs[1][0]) + (1 << statxs[2][0]) + (1 << statxs[3][0]));
+      const cost = STAT_MOD_VALUES[mod][2];
+      const availableSlots = availableModCost.where(d => d >= cost);
+      if (availableSlots.length == 0) {
+        if (mod % 2 == 0) {
+          // replace a major mod with two minor mods OR abort
+          usedMods.remove(mod)
+          let minorMod = mod - 1 as StatModifier;
+          usedMods.insert(minorMod)
+          usedMods.insert(minorMod)
+          i--;
+        } else {
+          // cannot replace a minor mod, so this build is not possible
+          return null;
+        }
+      } else {
+        availableModCost.splice(availableModCost.indexOf(availableSlots[0]), 1)
+        availableModCostLen--;
       }
     }
   }
+  if (usedMods.length > 5) return null;
 
+  // Check if we should add our results at all
+  if (config.onlyShowResultsWithNoWastedStats) {
+    // Definitely return when we encounter stats above 100
+    if (stats.where(d => d > 100).length > 0)
+      return null;
+    // definitely return when we encounter stats that can not be fixed
+    if (stats.where(d => d % 5 != 0).length > 0)
+      return null;
 
-  if (doNotOutput) return "DONOTSEND";
-
-  // Add mods to reduce stat waste
-  if (config.tryLimitWastedStats) {
+    // now find out how many mods we need to fix our stats to 0 waste
+    // Yes, this is basically duplicated code. But necessary.
     let waste = [
       stats[ArmorStat.Mobility],
       stats[ArmorStat.Resilience],
@@ -866,65 +757,185 @@ export function handlePermutation(
       stats[ArmorStat.Discipline],
       stats[ArmorStat.Intellect],
       stats[ArmorStat.Strength]
-    ].map((v, i) => [10 - (v % 10), i, v]).sort((a, b) => b[0] - a[0])
+    ].map((v, index) => [v % 10, index, v]).sort((a, b) => b[0] - a[0])
 
-    for (let i = waste.length - 1; i >= 0; i--) {
-      const wasteEntry = waste[i];
-      if (wasteEntry[2] >= 100) continue;
-      if (config.minimumStatTiers[wasteEntry[1] as ArmorStat].fixed) continue;
-      if (wasteEntry[0] == 10) continue
+    for (let i = availableModCostLen - 1; i >= 0; i--) {
+      let result = waste
+        .where(t => availableModCost.filter(d => d >= STAT_MOD_VALUES[(1 + (t[1] * 2)) as StatModifier][2]).length > 0)
+        .where(t => t[0] >= 5 && t[2] < 100)
+        .sort((a, b) => a[0] - b[0])[0]
+      if (!result) break;
 
-      // check if we can add a minor mod
-      const minorMod = (1 + (wasteEntry[1] * 3)) as StatModifier;
-      const minorCost = STAT_MOD_VALUES[minorMod][2]
-      let minorIdx = availableModCost.findIndex((d, i) => d >= minorCost && usedModslot[i] == -1);
+      const modCost = availableModCost.where(d => d >= STAT_MOD_VALUES[(1 + (result[1] * 2)) as StatModifier][2])[0]
+      availableModCost.splice(availableModCost.indexOf(modCost), 1);
+      availableModCostLen--;
+      stats[result[1]] += 5
+      result[0] -= 5;
+      usedMods.insert(1 + 2 * result[1])
+    }
+    const waste1 = getWaste(stats);
+    if (waste1 > 0)
+      return null;
+  }
+  if (usedMods.length > 5)
+    return null;
 
-      if (wasteEntry[0] <= 3 && availableArtificeCount > 0) {
-        // add artifice
-        availableArtificeCount--;
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        stats[wasteEntry[1]] += 3;
-        wasteEntry[0] -= 3;
-        continue
-      }
-      if (wasteEntry[0] <= 5 && minorIdx > -1) {
-        usedModslot[minorIdx] = minorMod;
-        usedMods.insert(minorMod);
-        stats[wasteEntry[1]] += 5;
-        wasteEntry[0] -= 5;
-        continue
-      }
-      if (wasteEntry[0] <= 6 && availableArtificeCount > 1) {
-        // add artifice
-        availableArtificeCount -= 2;
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        stats[wasteEntry[1]] += 6;
-        wasteEntry[0] -= 6;
-        continue
-      }
-      if (wasteEntry[0] == 8 && availableArtificeCount > 0 && minorIdx > -1) {
-        // add artifice
-        availableArtificeCount -= 1;
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
 
-        usedModslot[minorIdx] = minorMod;
-        usedMods.insert(minorMod);
+  // get maximum possible stat and write them into the runtime
+  // Get maximal possible stats and write them in the runtime variable
+  const maxBonus = 10 * availableModCostLen
+  const maxBonus1 = 100 - 10 * availableModCostLen
+  const possible100 = []
+  for (let n = 0; n < 6; n++) {
+    let maximum = stats[n]
+    // can reach 100, so we want an effective way to find out how
+    if (maximum >= maxBonus1) {
+      possible100.push([n, 100 - maximum])
+    }
 
-        stats[wasteEntry[1]] += 8;
-        wasteEntry[0] -= 8;
-        continue
+    // TODO there is a bug here somewhere
+    if (maximum + maxBonus >= runtime.maximumPossibleTiers[n]) {
+      let minor = STAT_MOD_VALUES[(1 + (n * 2)) as StatModifier][2]
+      let major = STAT_MOD_VALUES[(2 + (n * 2)) as StatModifier][2]
+      for (let i = 0; i < availableModCostLen && maximum < 100; i++) {
+        if (availableModCost[i] >= major) maximum += 10;
+        if (availableModCost[i] >= minor && availableModCost[i] < major) maximum += 5;
       }
-      if (wasteEntry[0] <= 9 && availableArtificeCount > 2) {
-        // add artifice
-        availableArtificeCount -= 3;
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        usedArtifice.push(3 + (3 * wasteEntry[1]));
-        stats[wasteEntry[1]] += 9;
-        wasteEntry[0] -= 9;
-        continue
+      if (maximum > runtime.maximumPossibleTiers[n])
+        runtime.maximumPossibleTiers[n] = maximum
+    }
+  }
+
+  if (availableModCostLen > 0 && possible100.length >= 3) {
+    // validate if it is possible
+    possible100.sort((a, b) => a[1] - b[1])
+
+    // combinations...
+    const comb3 = []
+    for (let i1 = 0; i1 < possible100.length - 2; i1++) {
+      let cost1 = ~~((Math.max(0, possible100[i1][1], 0) + 9) / 10);
+      if (cost1 > availableModCostLen) break;
+
+      for (let i2 = i1 + 1; i2 < possible100.length - 1; i2++) {
+        let cost2 = ~~((Math.max(0, possible100[i2][1], 0) + 9) / 10);
+        if (cost1 + cost2 > availableModCostLen) break;
+
+        for (let i3 = i2 + 1; i3 < possible100.length; i3++) {
+          let cost3 = ~~((Math.max(0, possible100[i3][1], 0) + 9) / 10);
+          if (cost1 + cost2 + cost3 > availableModCostLen) break;
+
+
+          var addedAs4x100 = false
+          for (let i4 = i3 + 1; i4 < possible100.length; i4++) {
+            let cost4 = ~~((Math.max(0, possible100[i4][1], 0) + 9) / 10);
+            if (cost1 + cost2 + cost3 + cost4 > availableModCostLen) break;
+            comb3.push([possible100[i1], possible100[i2], possible100[i3], possible100[i4]])
+            addedAs4x100 = true;
+          }
+          if (!addedAs4x100)
+            comb3.push([possible100[i1], possible100[i2], possible100[i3]])
+        }
       }
+    }
+
+
+    for (let combination of comb3) {
+      var requiredModCosts = [0, 0, 0, 0, 0, 0]
+      let requiredModCostsCount = 0
+
+      for (let i = 0; i < combination.length; i++) {
+        if (combination[i][1] <= 0)
+          continue
+        const data = combination[i]
+        const id = data[0]
+        let minor = STAT_MOD_VALUES[(1 + (id * 2)) as StatModifier][2]
+        let major = STAT_MOD_VALUES[(2 + (id * 2)) as StatModifier][2]
+
+        const valueToOvercome = Math.max(0, data[1]);
+        let amountMajor = ~~(valueToOvercome / 10);
+        let amountMinor = valueToOvercome % 10;
+        if (amountMinor > 5) {
+          amountMajor++;
+        } else if (amountMinor > 0) {
+          requiredModCosts[minor]++;
+          requiredModCostsCount++;
+        }
+
+        for (let k = 0; k < amountMajor; k++) {
+          requiredModCosts[major]++;
+          requiredModCostsCount++;
+        }
+      }
+      const majorMapping = [0, 0, 0, 1, 2, 2]
+      const usedCostIdx = [false, false, false, false, false]
+      //if (combination.where(d => d[0] == 4).length > 0) console.log("01", {usedCostIdx, possible100, combination, availableModCostLen, requiredModCosts, requiredModCostsCount})
+
+      if (requiredModCostsCount > availableModCostLen)
+        continue;
+
+      for (let costIdx = 5; costIdx >= 3; costIdx--) {
+        let costAmount = requiredModCosts[costIdx];
+        if (costAmount == 0) continue
+        let dat = availableModCost
+          .map((d, i) => [d, i])
+          .filter(([d, index]) => (!usedCostIdx[index]) && d >= costIdx)
+
+        //if (combination.where(d => d[0] == 4).length > 0)  console.log("01 >>","log",  costAmount, dat.length, dat, costAmount)
+        let origCostAmount = costAmount
+        for (let n = 0; (n < origCostAmount) && (n < dat.length); n++) {
+          usedCostIdx[dat[n][1]] = true;
+          costAmount--;
+        }
+        for (let n = 0; n < costAmount; n++) {
+          requiredModCosts[costIdx]--;
+          requiredModCosts[majorMapping[costIdx]] += 2;
+          requiredModCostsCount++;
+        }
+        if (requiredModCostsCount > availableModCostLen)
+          break;
+      }
+      // 3x100 possible
+      if (requiredModCostsCount <= availableModCostLen) {
+        runtime.statCombo3x100.add((1 << combination[0][0]) + (1 << combination[1][0]) + (1 << combination[2][0]));
+        if (combination.length > 3)
+          runtime.statCombo4x100.add((1 << combination[0][0]) + (1 << combination[1][0]) + (1 << combination[2][0]) + (1 << combination[3][0]));
+      }
+    }
+  }
+
+  if (doNotOutput) return "DONOTSEND";
+
+  // Add mods to reduce stat waste
+  if (config.tryLimitWastedStats && availableModCostLen > 0) {
+
+    let waste = [
+      stats[ArmorStat.Mobility],
+      stats[ArmorStat.Resilience],
+      stats[ArmorStat.Recovery],
+      stats[ArmorStat.Discipline],
+      stats[ArmorStat.Intellect],
+      stats[ArmorStat.Strength]
+    ].map((v, i) => [v % 10, i, v]).sort((a, b) => b[0] - a[0])
+
+    for (let id = 0; id < availableModCostLen; id++) {
+      let result = waste
+        .where(t => availableModCost.where(d => d >= STAT_MOD_VALUES[(1 + (t[1] * 2)) as StatModifier][2]).length > 0)
+        .filter(t => t[0] >= 5 && t[2] < 100)
+        .sort((a, b) => a[0] - b[0])[0]
+      if (!result) break;
+
+      // Ignore this if it would bring us over the fixed stat tier
+      if (config.minimumStatTiers[result[1] as ArmorStat].fixed && (stats[result[1]] + 5) / 10 >= config.minimumStatTiers[result[1] as ArmorStat].value + 1) {
+        result[0] -= 5;
+        continue;
+      }
+
+      const modCost = availableModCost.where(d => d >= STAT_MOD_VALUES[(1 + (result[1] * 2)) as StatModifier][2])[0]
+      availableModCost.splice(availableModCost.indexOf(modCost), 1);
+      availableModCostLen--;
+      stats[result[1]] += 5
+      result[0] -= 5;
+      usedMods.insert(1 + 2 * result[1])
     }
   }
 
@@ -935,14 +946,13 @@ export function handlePermutation(
 
   const exotic = helmet.containsExotics ? helmet : gauntlet.containsExotics ? gauntlet : chest.containsExotics ? chest : leg.containsExotics ? leg : null
   return {
-    artificeMods: combo,
+    artifice: combo,
     exotic: exotic == null ? [] : [{
       icon: exotic?.items[0].icon,
       watermark: exotic?.items[0].watermarkIcon,
       name: exotic?.items[0].name,
       hash: exotic?.items[0].hash
     }],
-    artifice: usedArtifice,
     modCount: usedMods.length,
     modCost: usedMods.list.reduce((p, d: StatModifier) => p + STAT_MOD_VALUES[d][2], 0),
     mods: usedMods.list,

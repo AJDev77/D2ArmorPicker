@@ -358,16 +358,17 @@ export class DimApiService {
 
             // FIND SPECIAL MODS
             // Powerful friends/radiant light issue:
-            // DIM doesn't provide where a mod is located (for the most part),
-            // so without complex logic to determine if there could possibly be
-            // an arc mod on the same armor piece, it's hard to detect.
-            // Therefore, if a user has one of those mods on, it will give them
-            // the stat boost regardless.
+            // Radiant Light and Powerful Friends don't exist anymore, but
+            // I kept it in the stat calculation for any old loadouts so the
+            // user can still see what the loadout was made to be, but it doesn't
+            // add the mods to the final product
 
             let specialMod = Object.values(ModInformation).find((v) => v.hash == modHash)
 
             if (specialMod != undefined) {
-                specialMods.push(specialMod.id)
+                if (specialMod.id != ModOrAbility.PowerfulFriends && specialMod.id != ModOrAbility.RadiantLight) {
+                  specialMods.push(specialMod.id)
+                }
                 specialMod.bonus.forEach(bonus => {
                     if (bonus.stat == ArmorStat.Mobility) {
                       mobility += bonus.value
@@ -406,7 +407,7 @@ export class DimApiService {
               intellect += 3
             } else if (mod == 2507624050) {
               strength += 3
-            }
+            } 
           }
         }
           // Finally

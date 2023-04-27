@@ -70,10 +70,10 @@ export class BungieApiService {
     ).toPromise()
       .catch(async err => {
         console.error(err);
-        if (environment.offlineMode) {
-          console.debug("Offline mode, ignoring API error")
-          return;
-        }
+        // if (environment.offlineMode) {
+        //   console.debug("Offline mode, ignoring API error")
+        //   return;
+        // }
         if (err.error?.ErrorStatus == "SystemDisabled") {
           console.info("System is disabled. Revoking auth, must re-login")
           //await this.authService.logout();
@@ -287,10 +287,10 @@ export class BungieApiService {
   }
 
   async updateArmorItems(force = false) {
-    if (environment.offlineMode) {
-      console.info("BungieApiService", "updateArmorItems", "offline mode, skipping")
-      return;
-    }
+    // if (environment.offlineMode) {
+    //   console.info("BungieApiService", "updateArmorItems", "offline mode, skipping")
+    //   return;
+    // }
 
     if (!force && localStorage.getItem("LastArmorUpdate"))
       if (localStorage.getItem("last-armor-db-name") == this.db.inventoryArmor.db.name)
@@ -473,7 +473,7 @@ export class BungieApiService {
 
   private getArmorPerk(v: DestinyInventoryItemDefinition): ArmorPerkOrSlot {
     if ((v.sockets?.socketEntries.filter(d => d.reusablePlugSetHash == 1259) || []).length > 0)
-      return ArmorPerkOrSlot.SlotArtificer;
+      return ArmorPerkOrSlot.SlotArtifice;
 
     if ((v.sockets?.socketEntries.filter(d => d.singleInitialItemHash == 1728096240) || []).length > 0)
       return ArmorPerkOrSlot.SlotKingsFall;
@@ -503,10 +503,10 @@ export class BungieApiService {
   }
 
   async updateManifest(force = false) {
-    if (environment.offlineMode) {
-      console.info("BungieApiService", "updateManifest", "offline mode, skipping")
-      return;
-    }
+    // if (environment.offlineMode) {
+    //   console.info("BungieApiService", "updateManifest", "offline mode, skipping")
+    //   return;
+    // }
 
 
     var destinyManifest = null;
@@ -574,7 +574,7 @@ export class BungieApiService {
             || d.socketTypeHash == 2512726577 // class
             || d.socketTypeHash == 3219375296 // legs
             || d.socketTypeHash == 968742181 // head
-        }).length || []) > 0)
+        }).length || 0) > 0)
 
         const isExotic = (v.inventory?.tierTypeName == 'Exotic') ? 1 : 0;
         let exoticPerkHash = null;

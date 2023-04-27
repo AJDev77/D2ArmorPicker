@@ -255,7 +255,7 @@
       </td>
     </tr>
      <!-- +Artifice -->
-     <tr *ngVar="element?.artificeMods as mods">
+     <tr *ngVar="element?.artifice as mods">
       <td>Artifice Mods</td>
       <td *ngVar="mods | count:0 as count">
         <span *ngIf="count > 0" class="positive">{{count}}×3</span>
@@ -485,7 +485,7 @@
             </ng-container>
             <!-- /STRENGTH -->
           </ul>
-          <ul *ngVar="element?.artificeMods as mods">
+          <ul *ngVar="element?.artifice as mods">
             <!-- MOBILITY -->
               <ng-container *ngVar="mods | count:0 as artificeCount">
                 <li *ngIf="artificeCount > 0" class="positive">

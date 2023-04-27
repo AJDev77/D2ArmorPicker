@@ -68,7 +68,7 @@
   <!-- Position Column -->
   <ng-container matColumnDef="name">
     <th *matHeaderCellDef mat-header-cell>Name</th>
-    <td *matCellDef="let element" mat-cell>{{element.storedConfig.name}} </td>
+    <td style="overflow: hidden; text-overflow: ellipsis; max-width: 20ch;" *matCellDef="let element" mat-cell>{{element.storedConfig.name}} </td>
   </ng-container>
 
   <!-- Position Column -->

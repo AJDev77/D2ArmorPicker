@@ -6,6 +6,26 @@ import {ArmorStat, SpecialArmorStat} from "./enum/armor-stat";
 import {DestinyEnergyType} from "bungie-api-ts/destiny2/interfaces";
 
 export const ModInformation: EnumDictionary<ModOrAbility, Modifier> = {
+  [ModOrAbility.PowerfulFriends]: {
+    id: ModOrAbility.PowerfulFriends,
+    name: "Powerful Friends",
+    description: "When you become Charged with Light, nearby allies also become Charged with Light, if they are not already.",
+    type: ModifierType.CombatStyleMod,
+    bonus: [{stat: ArmorStat.Mobility, value: 20}],
+    cost: 4,
+    requiredArmorAffinity: DestinyEnergyType.Arc,
+    hash: 1484685887
+  },
+  [ModOrAbility.RadiantLight]: {
+    id: ModOrAbility.RadiantLight,
+    name: "Radiant Light",
+    description: "Casting your Super causes nearby allies to become Charged with Light.",
+    type: ModifierType.CombatStyleMod,
+    bonus: [{stat: ArmorStat.Strength, value: 20}],
+    cost: 3,
+    requiredArmorAffinity: DestinyEnergyType.Arc,
+    hash: 2979815167
+  },
   // Positive STASIS
   [ModOrAbility.WhisperOfDurance]: {
     id: ModOrAbility.WhisperOfDurance,

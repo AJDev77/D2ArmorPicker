@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {TheorizerPageComponent} from "./theorizer-page.component";
+//import {TheorizerPageComponent} from "./theorizer-page.component";
 import {RouterModule, Routes} from "@angular/router";
 import {CommonMaterialModule} from "../../../../modules/common-material/common-material.module";
 
@@ -9,16 +9,16 @@ import {CommonMaterialModule} from "../../../../modules/common-material/common-m
 const routes: Routes = [
   {
     path: '',
-    component: TheorizerPageComponent
+    //component: TheorizerPageComponent
   }
 ];
 
 @NgModule({
   declarations: [
-    TheorizerPageComponent
+    //TheorizerPageComponent
   ],
   exports: [
-    TheorizerPageComponent
+    //TheorizerPageComponent
   ],
   imports: [
     CommonModule,

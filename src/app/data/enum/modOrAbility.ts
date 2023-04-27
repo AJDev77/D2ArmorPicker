@@ -1,4 +1,7 @@
 export enum ModOrAbility {
+  PowerfulFriends,
+  RadiantLight,
+
   WhisperOfDurance = 1000,
   WhisperOfChains,
   WhisperOfConduction,
@@ -23,7 +26,6 @@ export enum ModOrAbility {
   EchoOfObscurity, //+10rec
   EchoOfStarvation,
   EchoOfVigilance,
-  EchoOfVigilance,
 
   // SOLAR
   EmberOfBenelovence = 1300,
@@ -37,7 +39,6 @@ export enum ModOrAbility {
   EmberOfSearing,
   EmberOfTorches,
   EmberOfMercy,
-  EmberOfMercy,
   //EchoOfExchange ,
   //EchoOfRemnants,
   //EchoOfReprisal,
@@ -49,16 +50,6 @@ export enum ModOrAbility {
   SparkOfVolts,
   SparkOfResistance,
   SparkOfShock,
-
-  ThreadOfAscent = 1500,
-  ThreadOfBinding,
-  ThreadOfContinuity,
-  ThreadOfEvolution,
-  ThreadOfFinality,
-  ThreadOfFury,
-  ThreadOfGeneration,
-  ThreadOfTransmutation,
-  ThreadOfWarding,
 
   // Artifact mods,
   //MobileRetrofit = 1500, // +5 Mobility

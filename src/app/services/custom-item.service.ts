@@ -36,12 +36,15 @@ export class CustomItemService {
       // right now was planning for more vendors, but more vendors = slow,
       // so maybe just have xur
       let now = new Date(Date.now()).getDay()
-      if (now == 0 || now == 1 || now == 5 || now == 6)
+      let nowHour = new Date(Date.now()).getHours()
+      if (now == 0 || now == 1 || now == 2 || now == 5 || now == 6)
       this.vendorArmor.forEach((e) => {
         allCustomItems.push(...e.items)
       })
       return allCustomItems
     }
+
+    //TODO: does not show xur armor on tuesday before reset
 
     getVendorItems(): IInventoryArmor[] {
       let allCustomItems: IInventoryArmor[] = []
@@ -183,7 +186,7 @@ export class CustomItemService {
             intellect: stats.find(v => v.statHash == 144602215)!.value,
             strength: stats.find(v => v.statHash == 4244567218)!.value,
             energyLevel: 0,
-            energyAffinity: DestinyEnergyType.Any,
+            //energyAffinity: DestinyEnergyType.Any,
             statPlugHashes: [],
             hash: test.itemHash,
             name: res2[test.itemHash].name + " (at Xur)",
