@@ -12,8 +12,49 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_DATA = [
   {
+    version: "2.3.1",
+    date: "April 2, 2023",
+    entries: [
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Feature: Added the possibility to only show builds that contain an exotic.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Added 'Root of Nightmares' modslot filter.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Added 'Queen's Favor' seasonal perk filter.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.ADD,
+        text: "Added text indicating that only fragments that affect stats are shown.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Fixed deprecated mods being sent when opening the loadout in DIM. Also adds artifice mods now.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Fixed an issue where the tool did not put artifice mods on the class item if you forced the class item to be artifice.....",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.MODIFIED,
+        text: "Fixed an issue where the default selection was the titan class, even if you had no titan characters.",
+        issues: []
+      },
+    ]
+  },
+  {
     version: "2.3.0",
-    date: "February 22, 2023",
+    date: "March 14, 2023",
     entries: [
       {
         type: ChangelogEntryType.ADD,
@@ -22,7 +63,7 @@ export const CHANGELOG_DATA = [
       },
       {
         type: ChangelogEntryType.ADD,
-        text: "Added the amount of used artifice mods to the result table overview (next to the mods).",
+        text: "Added the amount of used artifice mods to the result table overview (next to the mods). They are not calculated into the 'mod cost' column.",
         issues: []
       },
       {
@@ -32,12 +73,12 @@ export const CHANGELOG_DATA = [
       },
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "Introduced more modules for asynchronous loading. This is more a speed improvement than a feature.",
+        text: "Adapted modslot cost of Resilience and Recovery mods.",
         issues: []
       },
       {
         type: ChangelogEntryType.MODIFIED,
-        text: "Adapted modslot cost of Resilience and Recovery mods.",
+        text: "Introduced more modules for asynchronous loading. This is more a speed improvement than a feature.",
         issues: []
       },
       {
@@ -53,6 +94,16 @@ export const CHANGELOG_DATA = [
       {
         type: ChangelogEntryType.REMOVE,
         text: "Removed the elemental affinity completely.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.REMOVE,
+        text: "DISABLED the 'Zero Waste' feature. It will be re-enabled in the future.",
+        issues: []
+      },
+      {
+        type: ChangelogEntryType.REMOVE,
+        text: "DISABLED the 'Modslot Limitation' feature. It will be re-enabled in the future.",
         issues: []
       },
     ]

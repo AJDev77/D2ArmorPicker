@@ -14,9 +14,9 @@
 //   ModifierType=ModifierType;
 //   CharacterClass=CharacterClass;
 
-//   glpk: GLPK | null = null;
+// //   glpk: GLPK | null = null;
 
-//   calculating = false;
+// //   calculating = false;
 
 //   // options
 //   options = {
@@ -108,22 +108,22 @@
 //     return l.reduce((a, b) => a + b, 0);
 //   }
 
-//   slotNameByIndex(index: number): string {
-//     switch (index) {
-//       case 0:
-//         return "Helmet";
-//       case 1:
-//         return "Gauntlets";
-//       case 2:
-//         return "Chest Armor";
-//       case 3:
-//         return "Leg Armor";
-//       case 4:
-//         return "Class Item";
-//       default:
-//         return "Unknown";
-//     }
-//   }
+// //   slotNameByIndex(index: number): string {
+// //     switch (index) {
+// //       case 0:
+// //         return "Helmet";
+// //       case 1:
+// //         return "Gauntlets";
+// //       case 2:
+// //         return "Chest Armor";
+// //       case 3:
+// //         return "Leg Armor";
+// //       case 4:
+// //         return "Class Item";
+// //       default:
+// //         return "Unknown";
+// //     }
+// //   }
 
 //   resultValueToText(value: number): string {
 //     // this.GLP_UNDEF=1,this.GLP_FEAS=2,this.GLP_INFEAS=3,this.GLP_NOFEAS=4,this.GLP_OPT=5,this.GLP_UNBND=6,
@@ -145,37 +145,37 @@
 //     }
 //   }
 
-//   async ngOnInit() {
-//     this.glpk = await GLPKConstructor();
+// //   async ngOnInit() {
+// //     this.glpk = await GLPKConstructor();
 
-//     console.log(this.glpk)
-//   }
+// //     console.log(this.glpk)
+// //   }
 
-//   startTimer() {
-//     this.time_progress = 0;
-//     const interval = this.options.solver.timeout / 100 * 1000;
+// //   startTimer() {
+// //     this.time_progress = 0;
+// //     const interval = this.options.solver.timeout / 100 * 1000;
 
-//     this.timerId = setInterval(() => {
-//       this.time_progress += 1;
-//       if (this.time_progress >= 100) {
-//         this.stopTimer();
-//       }
-//     }, interval) as unknown as number;
-//   }
+// //     this.timerId = setInterval(() => {
+// //       this.time_progress += 1;
+// //       if (this.time_progress >= 100) {
+// //         this.stopTimer();
+// //       }
+// //     }, interval) as unknown as number;
+// //   }
 
-//   stopTimer() {
-//     if (this.timerId) {
-//       this.time_progress = 100;
-//       clearInterval(this.timerId);
-//       this.timerId = 0;
-//     }
-//   }
+// //   stopTimer() {
+// //     if (this.timerId) {
+// //       this.time_progress = 100;
+// //       clearInterval(this.timerId);
+// //       this.timerId = 0;
+// //     }
+// //   }
 
 
-//   async run() {
-//     this.result = this.result_items = null;
-//     if (!this.glpk) throw new Error("GLPK not initialized yet");
-//     this.calculating = true;
+// //   async run() {
+// //     this.result = this.result_items = null;
+// //     if (!this.glpk) throw new Error("GLPK not initialized yet");
+// //     this.calculating = true;
 
 //     const lp = this.buildFromConfiguration();
 //     this.lp = lp;
@@ -196,18 +196,18 @@
 //       [0, 0, 0, 0, 0, 0],
 //     ];
 
-//     const masterwork = [10, 10, 10, 10, 10, 10]
-//     const constants = [0, 0, 0, 0, 0, 0]
+// //     const masterwork = [10, 10, 10, 10, 10, 10]
+// //     const constants = [0, 0, 0, 0, 0, 0]
 
-//     const statMods = {
-//       major: [0, 0, 0, 0, 0, 0],
-//       minor: [0, 0, 0, 0, 0, 0]
-//     }
-//     const artificeMods = [0, 0, 0, 0, 0, 0]
+// //     const statMods = {
+// //       major: [0, 0, 0, 0, 0, 0],
+// //       minor: [0, 0, 0, 0, 0, 0]
+// //     }
+// //     const artificeMods = [0, 0, 0, 0, 0, 0]
 
-//     for (let kv in result!.result!.vars) {
-//       if (!kv.startsWith("constant_")) continue;
-//       if (result!.result!.vars[kv] == 0) continue;
+// //     for (let kv in result!.result!.vars) {
+// //       if (!kv.startsWith("constant_")) continue;
+// //       if (result!.result!.vars[kv] == 0) continue;
 
 //       const [_, stat] = kv.split("_");
 //       constants[parseInt(stat)] += result!.result!.vars[kv] -10;
@@ -224,14 +224,14 @@
 //       }
 //     }
 
-//     /* STAT MODS */
-//     for (let kv in result!.result!.vars) {
-//       if (!kv.startsWith("mod_")) continue;
-//       if (result!.result!.vars[kv] == 0) continue;
+// //     /* STAT MODS */
+// //     for (let kv in result!.result!.vars) {
+// //       if (!kv.startsWith("mod_")) continue;
+// //       if (result!.result!.vars[kv] == 0) continue;
 
-//       const [_, type, stat] = kv.split("_");
-//       statMods[type == "1" ? "minor" : "major"][parseInt(stat)] += result!.result!.vars[kv];
-//     }
+// //       const [_, type, stat] = kv.split("_");
+// //       statMods[type == "1" ? "minor" : "major"][parseInt(stat)] += result!.result!.vars[kv];
+// //     }
 
 //     /* ARTIFICE */
 //     for (let kv in result!.result!.vars) {
@@ -242,6 +242,13 @@
 //       artificeMods[parseInt(stat)] += result!.result!.vars[kv];
 //     }
 
+//     for (let slot = 0; slot < 4 && artificeCount < requiredArtificeArmor; slot++) {
+//       if (itemArtifice[slot]) continue;
+//       if (itemExotic[slot] == false) continue;
+//       if (itemMeta[slot] != null) continue;
+//       itemArtifice[slot] = true;
+//       artificeCount++;
+//     }
 
 //     // now sum every stat to get the final value
 //     const total = [0, 0, 0, 0, 0, 0]
@@ -255,10 +262,10 @@
 //       total[stat] += 10 * statMods.major[stat] + 5 * statMods.minor[stat] + 3 * artificeMods[stat];
 //     }
 
-//     // get the tiers for each stat
-//     const tiers = total.map(k => Math.floor(k / 10))
-//     const waste = total.map(k => k % 10)
-//     const tierSum = tiers.reduce((a, b) => a + b, 0)
+// //     // get the tiers for each stat
+// //     const tiers = total.map(k => Math.floor(k / 10))
+// //     const waste = total.map(k => k % 10)
+// //     const tierSum = tiers.reduce((a, b) => a + b, 0)
 
 //     return {
 //       items, artificeMods, statMods, constants,
@@ -269,66 +276,66 @@
 //   buildFromConfiguration(): LP {
 //     if (!this.glpk) throw new Error("GLPK not initialized yet");
 
-//     const lp = {
-//       name: "d2ap_theorizer",
-//       options: {
-//         msgLev: this.glpk.GLP_MSG_ERR,
-//         presolve: this.options.solver.presolve,
-//         tmlim: this.options.solver.timeout,
-//       },
-//       objective: {
-//         direction: this.glpk.GLP_MAX,
-//         name: "objective",
-//         vars: [],
-//       },
-//       subjectTo: [
-//         {
-//           name: "goal_mobility",
-//           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.mobility},
-//           vars: [] as any[],
-//         },
-//         {
-//           name: "goal_resilience",
-//           bnds: {
-//             type: this.glpk.GLP_DB,
-//             ub: this.options.stats.maxValue,
-//             lb: this.options.stats.desired.resilience
-//           },
-//           vars: [] as any[],
-//         },
-//         {
-//           name: "goal_recovery",
-//           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.recovery},
-//           vars: [] as any[],
-//         },
-//         {
-//           name: "goal_discipline",
-//           bnds: {
-//             type: this.glpk.GLP_DB,
-//             ub: this.options.stats.maxValue,
-//             lb: this.options.stats.desired.discipline
-//           },
-//           vars: [] as any[],
-//         },
-//         {
-//           name: "goal_intellect",
-//           bnds: {
-//             type: this.glpk.GLP_DB,
-//             ub: this.options.stats.maxValue,
-//             lb: this.options.stats.desired.intellect
-//           },
-//           vars: [] as any[],
-//         },
-//         {
-//           name: "goal_strength",
-//           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.strength},
-//           vars: [] as any[],
-//         },
-//       ],
-//       bounds: [],
-//       binaries: [], // binary values
-//       generals: [] // integers
-//     } as LP;
+// //     const lp = {
+// //       name: "d2ap_theorizer",
+// //       options: {
+// //         msgLev: this.glpk.GLP_MSG_ERR,
+// //         presolve: this.options.solver.presolve,
+// //         tmlim: this.options.solver.timeout,
+// //       },
+// //       objective: {
+// //         direction: this.glpk.GLP_MAX,
+// //         name: "objective",
+// //         vars: [],
+// //       },
+// //       subjectTo: [
+// //         {
+// //           name: "goal_mobility",
+// //           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.mobility},
+// //           vars: [] as any[],
+// //         },
+// //         {
+// //           name: "goal_resilience",
+// //           bnds: {
+// //             type: this.glpk.GLP_DB,
+// //             ub: this.options.stats.maxValue,
+// //             lb: this.options.stats.desired.resilience
+// //           },
+// //           vars: [] as any[],
+// //         },
+// //         {
+// //           name: "goal_recovery",
+// //           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.recovery},
+// //           vars: [] as any[],
+// //         },
+// //         {
+// //           name: "goal_discipline",
+// //           bnds: {
+// //             type: this.glpk.GLP_DB,
+// //             ub: this.options.stats.maxValue,
+// //             lb: this.options.stats.desired.discipline
+// //           },
+// //           vars: [] as any[],
+// //         },
+// //         {
+// //           name: "goal_intellect",
+// //           bnds: {
+// //             type: this.glpk.GLP_DB,
+// //             ub: this.options.stats.maxValue,
+// //             lb: this.options.stats.desired.intellect
+// //           },
+// //           vars: [] as any[],
+// //         },
+// //         {
+// //           name: "goal_strength",
+// //           bnds: {type: this.glpk.GLP_DB, ub: this.options.stats.maxValue, lb: this.options.stats.desired.strength},
+// //           vars: [] as any[],
+// //         },
+// //       ],
+// //       bounds: [],
+// //       binaries: [], // binary values
+// //       generals: [] // integers
+// //     } as LP;
 
 //     // add MW and Const Values
 //     for (let stat = 0; stat < 6; stat++) {
@@ -337,8 +344,68 @@
 //       lp.bounds!.push({name: `constant_${stat}`, type: this.glpk.GLP_FX, ub: constVal, lb: constVal});
 //       lp.subjectTo![stat].vars.push({name: `constant_${stat}`, coef: 1});
 
+// //     }
+
+//     const withOwnArmor = (this.options.armor.armorType & 1) > 0;
+//     const withGeneratedArmor = (this.options.armor.armorType & 2) > 0;
+//     const withBothArmorSources = withOwnArmor && withGeneratedArmor;
+
+//     const items = await this.getItems()
+//     let helmets = items.filter(i => i.slot == ArmorSlot.ArmorSlotHelmet)
+//     let gauntlets = items.filter(i => i.slot == ArmorSlot.ArmorSlotGauntlet)
+//     let chests = items.filter(i => i.slot == ArmorSlot.ArmorSlotChest)
+//     let legs = items.filter(i => i.slot == ArmorSlot.ArmorSlotLegs)
+
+//     // check class setting
+//     if (this.options.fragments.class != DestinyClass.Unknown) {
+//       const clazz = this.options.fragments.class
+//       helmets = helmets.filter(i => i.clazz == clazz)
+//       gauntlets = gauntlets.filter(i => i.clazz == clazz)
+//       chests = chests.filter(i => i.clazz == clazz)
+//       legs = legs.filter(i => i.clazz == clazz)
 //     }
 
+//     let itemsBySlot = [helmets, gauntlets, chests, legs]
+
+//     const classLimitSubject = {
+//       name: `classlim`,
+//       vars: [] as any[],
+//       bnds: {type: this.glpk.GLP_UP, ub: 1, lb: 1}
+//     }
+//     const classLimitSubjects = []
+//     // add a variable for each class. Only one of them may be > 0
+//     for (let clazz = 0; clazz < 3; clazz++) {
+//       const clazzVar = `class_${clazz}`
+//       lp.binaries!.push(clazzVar)
+//       classLimitSubject.vars.push({name: clazzVar, coef: 1})
+
+//       classLimitSubjects.push({
+//         name: `classlim_${clazz}`,
+//         vars: [{name: clazzVar, coef: -4}], // TODO I may have to add 0.25 for theoretical armor piece plugs
+//         bnds: {type: this.glpk.GLP_UP, ub: 0, lb: 0}
+//       })
+//     }
+
+//     // only allow ZERO or ONE exotic
+//     const exoticLimitSubject = {
+//       name: `exoticlim`,
+//       vars: [] as any[],
+//       bnds: {type: this.glpk.GLP_DB, ub: 1, lb: 0}
+//     }
+
+//     if (this.options.armor.requiresExotic) {
+//       console.log("requiring exotic")
+//       exoticLimitSubject.bnds = {type: this.glpk.GLP_FX, ub: 1, lb: 1}
+//     }
+
+
+//     lp.subjectTo!.push(classLimitSubject)
+//     lp.subjectTo!.push(...classLimitSubjects)
+//     lp.subjectTo!.push(exoticLimitSubject)
+
+//     const penalty = 20;
+//     const artificeArmorPieces = []
+//     const artificeArmorPlugs = []
 
 //     // we have 4 slots
 //     // we pick four plugs for each slot; a plug has three values
@@ -389,15 +456,15 @@
 //         lp.generals!.push(`mod_${1}_${stat}`);
 //         lp.generals!.push(`mod_${2}_${stat}`);
 
-//         lp.subjectTo![stat].vars.push({name: `mod_${1}_${stat}`, coef: 5});
-//         lp.subjectTo![stat].vars.push({name: `mod_${2}_${stat}`, coef: 10});
+// //         lp.subjectTo![stat].vars.push({name: `mod_${1}_${stat}`, coef: 5});
+// //         lp.subjectTo![stat].vars.push({name: `mod_${2}_${stat}`, coef: 10});
 
-//         // only allow a total of 5 mods and 3 artificer mods
-//         modSubject.vars.push({name: `mod_${1}_${stat}`, coef: 1});
-//         modSubject.vars.push({name: `mod_${2}_${stat}`, coef: 1});
-//       }
-//       lp.subjectTo!.push(modSubject);
-//     }
+// //         // only allow a total of 5 mods and 3 artificer mods
+// //         modSubject.vars.push({name: `mod_${1}_${stat}`, coef: 1});
+// //         modSubject.vars.push({name: `mod_${2}_${stat}`, coef: 1});
+// //       }
+// //       lp.subjectTo!.push(modSubject);
+// //     }
 
 
 //     if (this.options.mods.maxArtifice > 0) {
@@ -420,69 +487,69 @@
 //     }
 
 
-//     if (this.options.stats.minTiers > 0 || this.options.stats.maxWaste < 54) {
+// //     if (this.options.stats.minTiers > 0 || this.options.stats.maxWaste < 54) {
 
-//       // I want to have the TIERS of the armor stats
-//       // for this, I introduce two variables per stat:
-//       // - The first is the "waste", which is bound between 0 and 9
-//       // - The second is the "tier", which is bound between -5 and 20
-//       // We will set these variables as "mobility - waste - 10 tier = 0"
-//       for (let stat = 0; stat < 6; stat++) {
-//         lp.bounds!.push({name: `waste_${stat}`, type: this.glpk.GLP_DB, ub: 9, lb: 0});
-//         //lp.bounds!.push({name: `tier_${stat}`, type: this.glpk.GLP_DB, ub: 100, lb: -100});
-//         lp.generals!.push(`waste_${stat}`);
-//         lp.generals!.push(`tier_${stat}`);
+// //       // I want to have the TIERS of the armor stats
+// //       // for this, I introduce two variables per stat:
+// //       // - The first is the "waste", which is bound between 0 and 9
+// //       // - The second is the "tier", which is bound between -5 and 20
+// //       // We will set these variables as "mobility - waste - 10 tier = 0"
+// //       for (let stat = 0; stat < 6; stat++) {
+// //         lp.bounds!.push({name: `waste_${stat}`, type: this.glpk.GLP_DB, ub: 9, lb: 0});
+// //         //lp.bounds!.push({name: `tier_${stat}`, type: this.glpk.GLP_DB, ub: 100, lb: -100});
+// //         lp.generals!.push(`waste_${stat}`);
+// //         lp.generals!.push(`tier_${stat}`);
 
-//         //lp.objective.vars.push({name: `tier_${stat}`, coef: 2})
-//         //lp.objective.vars.push({name: `waste_${stat}`, coef: -100})
-
-
-//         const setWasteAndTierSubject = {
-//           name: `set_waste_and_tier_${stat}`,
-//           vars: [
-//             {name: `waste_${stat}`, coef: -1},
-//             {name: `tier_${stat}`, coef: -10},
-//             ...lp.subjectTo![stat].vars
-//           ],
-//           bnds: {type: this.glpk.GLP_FX, ub: 0, lb: 0}
-//         };
-
-//         lp.subjectTo!.push(setWasteAndTierSubject)
-//       }
-
-//       // set minTiers <= the sum of the tiers
-//       if (this.options.stats.minTiers > 0) {
-//         const minTierSubject = {
-//           name: `require_tier_minimum`,
-//           vars: [] as any[],
-//           bnds: {type: this.glpk.GLP_LO, ub: 0, lb: this.options.stats.minTiers}
-//         }
-//         console.log("this.options.stats.minTiers", this.options.stats.minTiers)
-//         for (let stat = 0; stat < 6; stat++) {
-//           minTierSubject.vars.push({name: `tier_${stat}`, coef: 1});
-//         }
-//         lp.subjectTo!.push(minTierSubject);
-//       }
+// //         //lp.objective.vars.push({name: `tier_${stat}`, coef: 2})
+// //         //lp.objective.vars.push({name: `waste_${stat}`, coef: -100})
 
 
-//       // Specify maxWaste
-//       if (this.options.stats.maxWaste < 54) {
-//         const maxWasteSubject = {
-//           name: `require_waste_maximum`,
-//           vars: [] as any[],
-//           bnds: {
-//             type: this.options.stats.maxWaste > 0 ? this.glpk.GLP_UP : this.glpk.GLP_FX,
-//             ub: this.options.stats.maxWaste,
-//             lb: 0
-//           }
-//         }
-//         for (let stat = 0; stat < 6; stat++) {
-//           maxWasteSubject.vars.push({name: `waste_${stat}`, coef: 1});
-//         }
-//         lp.subjectTo!.push(maxWasteSubject);
-//       }
+// //         const setWasteAndTierSubject = {
+// //           name: `set_waste_and_tier_${stat}`,
+// //           vars: [
+// //             {name: `waste_${stat}`, coef: -1},
+// //             {name: `tier_${stat}`, coef: -10},
+// //             ...lp.subjectTo![stat].vars
+// //           ],
+// //           bnds: {type: this.glpk.GLP_FX, ub: 0, lb: 0}
+// //         };
 
-//     }
+// //         lp.subjectTo!.push(setWasteAndTierSubject)
+// //       }
+
+// //       // set minTiers <= the sum of the tiers
+// //       if (this.options.stats.minTiers > 0) {
+// //         const minTierSubject = {
+// //           name: `require_tier_minimum`,
+// //           vars: [] as any[],
+// //           bnds: {type: this.glpk.GLP_LO, ub: 0, lb: this.options.stats.minTiers}
+// //         }
+// //         console.log("this.options.stats.minTiers", this.options.stats.minTiers)
+// //         for (let stat = 0; stat < 6; stat++) {
+// //           minTierSubject.vars.push({name: `tier_${stat}`, coef: 1});
+// //         }
+// //         lp.subjectTo!.push(minTierSubject);
+// //       }
+
+
+// //       // Specify maxWaste
+// //       if (this.options.stats.maxWaste < 54) {
+// //         const maxWasteSubject = {
+// //           name: `require_waste_maximum`,
+// //           vars: [] as any[],
+// //           bnds: {
+// //             type: this.options.stats.maxWaste > 0 ? this.glpk.GLP_UP : this.glpk.GLP_FX,
+// //             ub: this.options.stats.maxWaste,
+// //             lb: 0
+// //           }
+// //         }
+// //         for (let stat = 0; stat < 6; stat++) {
+// //           maxWasteSubject.vars.push({name: `waste_${stat}`, coef: 1});
+// //         }
+// //         lp.subjectTo!.push(maxWasteSubject);
+// //       }
+
+// //     }
 
 
 //     /* Introduce stat values */
@@ -527,7 +594,7 @@
 //     //lp.objective.vars.push({name: `masterwork`, coef: 1},)
 
 
-//     return lp;
-//   }
+// //     return lp;
+// //   }
 
-// }
+// // }

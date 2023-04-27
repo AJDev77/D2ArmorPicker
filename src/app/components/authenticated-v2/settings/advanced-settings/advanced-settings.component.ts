@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ConfigurationService} from "../../../../services/configuration.service";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
+import {environment} from "../../../../../environments/environment";
 
 interface AdvancedSettingField {
   name: string;

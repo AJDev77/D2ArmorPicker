@@ -40,7 +40,11 @@ const data = {
   client_secret: process.env.D2AP_BUNGIE_CLIENT_SECRET,
   dimAPIKey: process.env.D2AP_DIM_API_KEY,
   nodeEnv: process.env.NODE_ENV,
-  offlineMode: false
+  offlineMode: false,
+  featureFlags: {
+    enableModslotLimitation: process.env.D2AP_FEATURE_ENABLE_MODSLOT_LIMITATION == "1",
+    enableZeroWaste: process.env.D2AP_FEATURE_ENABLE_ZERO_WASTE == "1",
+  }
 }
 
 
