@@ -66,7 +66,6 @@ export class BuildConfiguration {
   assumeExoticsMasterworked = true;
   assumeClassItemMasterworked = true;
   onlyUseMasterworkedItems = false;
-  executeModOptimization = false; // Limits the amount of results that are parsed. This looses some results, but solves memory issues
   limitParsedResults = true; // Limits the amount of results that are parsed. This looses some results, but solves memory issues
   tryLimitWastedStats = false;
   onlyShowResultsWithNoWastedStats = false;
@@ -102,7 +101,6 @@ export class BuildConfiguration {
       assumeExoticsMasterworked: true,
       assumeClassItemMasterworked: true,
       limitParsedResults: true,
-      executeModOptimization: false,
       tryLimitWastedStats: true,
       onlyShowResultsWithNoWastedStats: false,
       showWastedStatsColumn: false,

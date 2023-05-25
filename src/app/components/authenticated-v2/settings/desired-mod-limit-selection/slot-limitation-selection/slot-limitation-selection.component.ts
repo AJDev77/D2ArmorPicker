@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-} from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { MAXIMUM_STAT_MOD_AMOUNT } from "../../../../../data/constants";
 import { ArmorSlot } from "../../../../../data/enum/armor-slot";
 import { ConfigurationService } from "../../../../../services/configuration.service";
@@ -23,7 +15,7 @@ import { environment } from "../../../../../../environments/environment";
   templateUrl: "./slot-limitation-selection.component.html",
   styleUrls: ["./slot-limitation-selection.component.scss"],
 })
-export class SlotLimitationSelectionComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SlotLimitationSelectionComponent implements OnInit, OnDestroy {
   readonly featureDisabled = !environment.featureFlags.enableModslotLimitation;
   readonly ArmorSlot = ArmorSlot;
   readonly ArmorPerkOrSlotNames = ArmorPerkOrSlotNames;
@@ -49,7 +41,6 @@ export class SlotLimitationSelectionComponent implements OnInit, OnDestroy, Afte
   readonly availableArmorPerks = [
     ArmorPerkOrSlot.None,
     ArmorPerkOrSlot.PerkQueensFavor,
-    ArmorPerkOrSlot.SonarAmplifier,
     ArmorPerkOrSlot.SlotRootOfNightmares,
     ArmorPerkOrSlot.SlotKingsFall,
     ArmorPerkOrSlot.SlotVowOfTheDisciple,
