@@ -9,41 +9,41 @@ import {
 
 const ModUrl: { [k: number]: string } = {
   [StatModifier.MINOR_MOBILITY]:
-    "https://www.bungie.net/common/destiny2_content/icons/a6694a4ff65d371d19330fb10415b315.png",
+    "https://www.bungie.net/common/destiny2_content/icons/287901ef741855655856f6e8f5776f03.png",
   [StatModifier.MAJOR_MOBILITY]:
-    "https://www.bungie.net/common/destiny2_content/icons/8861e73c6701b8347cef025d400cd3dc.png",
+    "https://www.bungie.net/common/destiny2_content/icons/c664ddd10920daab49cc3808dbb6a1e6.png",
   [StatModifier.ARTIFICE_MOBILITY]:
-    "https://www.bungie.net/common/destiny2_content/icons/a6694a4ff65d371d19330fb10415b315.png",
+    "https://www.bungie.net/common/destiny2_content/icons/287901ef741855655856f6e8f5776f03.png",
   [StatModifier.MINOR_RESILIENCE]:
-    "https://www.bungie.net/common/destiny2_content/icons/ab1ffe5128806c3639e531f89a2d72d1.png",
+    "https://bungie.net/common/destiny2_content/icons/53c28186a4b97285a01aace5748e4de7.png",
   [StatModifier.MAJOR_RESILIENCE]:
-    "https://www.bungie.net/common/destiny2_content/icons/b2228e67e72fad2eb37735a33e0d0116.png",
+    "https://www.bungie.net/common/destiny2_content/icons/195f4f173adb52b336b4ecd67101004d.png",
   [StatModifier.ARTIFICE_RESILIENCE]:
-    "https://www.bungie.net/common/destiny2_content/icons/ab1ffe5128806c3639e531f89a2d72d1.png",
+    "https://bungie.net/common/destiny2_content/icons/53c28186a4b97285a01aace5748e4de7.png",
   [StatModifier.MINOR_RECOVERY]:
-    "https://www.bungie.net/common/destiny2_content/icons/e0fc8c022c2ab49ef92caff5843db7da.png",
+    "https://bungie.net/common/destiny2_content/icons/f39b0c97678148a864d6f6fbbe85524d.png",
   [StatModifier.MAJOR_RECOVERY]:
-    "https://www.bungie.net/common/destiny2_content/icons/4251f77e3b24900e262f16d5587980ef.png",
+    "https://www.bungie.net/common/destiny2_content/icons/18054408a5fc068f2384c6c31a183423.png",
   [StatModifier.ARTIFICE_RECOVERY]:
-    "https://www.bungie.net/common/destiny2_content/icons/e0fc8c022c2ab49ef92caff5843db7da.png",
+    "https://bungie.net/common/destiny2_content/icons/f39b0c97678148a864d6f6fbbe85524d.png",
   [StatModifier.MINOR_DISCIPLINE]:
-    "https://www.bungie.net/common/destiny2_content/icons/f841f379751b7672fca0e5f231e92638.png",
+    "https://bungie.net/common/destiny2_content/icons/8fa2d4e4c82586668210e12c5115575a.png",
   [StatModifier.MAJOR_DISCIPLINE]:
-    "https://www.bungie.net/common/destiny2_content/icons/3a5a2d6ee50b2611ebc4d4806d29301a.png",
+    "https://www.bungie.net/common/destiny2_content/icons/9d54e2149f945b2c298020da443b70fa.png",
   [StatModifier.ARTIFICE_DISCIPLINE]:
-    "https://www.bungie.net/common/destiny2_content/icons/f841f379751b7672fca0e5f231e92638.png",
+    "https://bungie.net/common/destiny2_content/icons/8fa2d4e4c82586668210e12c5115575a.png",
   [StatModifier.MINOR_INTELLECT]:
-    "https://www.bungie.net/common/destiny2_content/icons/f26479a3462676d613f135657ecad45a.png",
+    "https://bungie.net/common/destiny2_content/icons/d8da60458e3355ddf7123be5ffe3dc3c.png",
   [StatModifier.MAJOR_INTELLECT]:
-    "https://www.bungie.net/common/destiny2_content/icons/98408051297c26cb033cb761ab955fac.png",
+    "https://www.bungie.net/common/destiny2_content/icons/9fd56c3b42923c9df23edf585b0107bf.png",
   [StatModifier.ARTIFICE_INTELLECT]:
-    "https://www.bungie.net/common/destiny2_content/icons/f26479a3462676d613f135657ecad45a.png",
+    "https://bungie.net/common/destiny2_content/icons/d8da60458e3355ddf7123be5ffe3dc3c.png",
   [StatModifier.MINOR_STRENGTH]:
-    "https://www.bungie.net/common/destiny2_content/icons/dbd1615501778b66bca2764b9a561044.png",
+    "https://bungie.net/common/destiny2_content/icons/ec0b298ec4dac0023604e467a58c3868.png",
   [StatModifier.MAJOR_STRENGTH]:
-    "https://www.bungie.net/common/destiny2_content/icons/7b64c0b8014a57c6c297babb18c2239e.png",
+    "https://www.bungie.net/common/destiny2_content/icons/07f2361532c79e773909220e5884ab07.png",
   [StatModifier.ARTIFICE_STRENGTH]:
-    "https://www.bungie.net/common/destiny2_content/icons/dbd1615501778b66bca2764b9a561044.png",
+    "https://bungie.net/common/destiny2_content/icons/ec0b298ec4dac0023604e467a58c3868.png",
 };
 
 @Component({

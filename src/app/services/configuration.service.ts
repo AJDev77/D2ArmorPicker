@@ -118,9 +118,8 @@ export class ConfigurationService {
     // remove mods that no longer exist
     c.configuration.enabledMods = c.configuration.enabledMods.filter((v) => !!ModInformation[v]);
 
-    // Always reset risky mods on reload
+    // Always reset limitParsedResults on reload
     c.configuration.limitParsedResults = true;
-    c.configuration.addConstent1Resilience = false;
   }
 
   listSavedConfigurations(): StoredConfiguration[] {

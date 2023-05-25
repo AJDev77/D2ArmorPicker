@@ -12,57 +12,6 @@ export interface ChangelogEntry {
 
 export const CHANGELOG_DATA = [
   {
-    version: "2.4.0",
-    date: "May 23, 2023",
-    entries: [
-      {
-        type: ChangelogEntryType.MODIFIED,
-        text: "Rewrote the internal algorithm. It makes stuff faster and gives better results.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.ADD,
-        text: "Added a 'Perform further optimization' setting. This will give you better results, but it will take a bit longer.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.ADD,
-        text: "Added Icons to the Stat Selection to make it easier to see which row is which perk.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.ADD,
-        text: "Added button to download results as JSON.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.ADD,
-        text: "Added Sonar Amplifier perk.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.MODIFIED,
-        text: "Enabled Modslot limitation.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.MODIFIED,
-        text: "Enabled the 3x100 and 4x100 buttons.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.MODIFIED,
-        text: "Enabled Zero-Waste mode.",
-        issues: [],
-      },
-      {
-        type: ChangelogEntryType.MODIFIED,
-        text: "Temporarily disabled 'Reduce Wasted Stats'. It will be back soon.",
-        issues: [],
-      },
-    ],
-  },
-  {
     version: "2.3.2",
     date: "May 7, 2023",
     entries: [

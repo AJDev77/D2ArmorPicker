@@ -71,11 +71,11 @@ export const ArmorStatIconUrls: EnumDictionary<ArmorStat, string> = {
   [ArmorStat.Recovery]:
     "https://www.bungie.net/common/destiny2_content/icons/128eee4ee7fc127851ab32eac6ca91cf.png",
   [ArmorStat.Discipline]:
-    "https://www.bungie.net/common/destiny2_content/icons/79be2d4adef6a19203f7385e5c63b45b.png",
+    "https://www.bungie.net/common/destiny2_content/icons/ca62128071dc254fe75891211b98b237.png",
   [ArmorStat.Intellect]:
-    "https://www.bungie.net/common/destiny2_content/icons/d1c154469670e9a592c9d4cbdcae5764.png",
+    "https://www.bungie.net/common/destiny2_content/icons/59732534ce7060dba681d1ba84c055a6.png",
   [ArmorStat.Strength]:
-    "https://www.bungie.net/common/destiny2_content/icons/ea5af04ccd6a3470a44fd7bb0f66e2f7.png",
+    "https://www.bungie.net/common/destiny2_content/icons/c7eefc8abbaa586eeab79e962a79d6ad.png",
 };
 
 type Literal<T extends ArmorStat> = `${T}`;
@@ -103,7 +103,6 @@ export enum ArmorPerkOrSlot {
   PerkQueensFavor,
   // A special case just for guardian games class items.
   GuardianGamesClassItem,
-  SonarAmplifier,
   COUNT,
 }
 
@@ -124,7 +123,6 @@ export const ArmorPerkOrSlotNames: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.SeraphSensorArray]: "Seraph Sensor Array",
   [ArmorPerkOrSlot.SlotRootOfNightmares]: "Root of Nightmares Modslot",
   [ArmorPerkOrSlot.PerkQueensFavor]: "Queen's Favor",
-  [ArmorPerkOrSlot.SonarAmplifier]: "Sonar Amplifier",
   [ArmorPerkOrSlot.COUNT]: "",
 };
 export const ArmorPerkOrSlotIcons: EnumDictionary<ArmorPerkOrSlot, string> = {
@@ -133,35 +131,33 @@ export const ArmorPerkOrSlotIcons: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.GuardianGamesClassItem]:
     "https://www.bungie.net/common/destiny2_content/icons/DestinyEventCardDefinition_ce6c2cf855dce694bcc89803b6bc44b7.png",
   [ArmorPerkOrSlot.SlotNightmare]:
-    "https://www.bungie.net/common/destiny2_content/icons/53d6e3505cd03d4026b3dbbd9ccc19b6.jpg",
+    "https://www.bungie.net/common/destiny2_content/icons/94fe19fb98ae33e79921e3a8aa07800f.jpg",
   [ArmorPerkOrSlot.SlotArtifice]:
-    "https://www.bungie.net/common/destiny2_content/icons/46eec78bb7864641bbd7ba1fd4f9f248.png",
+    "https://bungie.net/common/destiny2_content/icons/74aeb2f3d7bc16a31a6924822f850184.png",
   [ArmorPerkOrSlot.SlotLastWish]:
-    "https://www.bungie.net/common/destiny2_content/icons/76f0c1520fa384ceb27bd2469225dd8a.png",
+    "https://bungie.net/common/destiny2_content/icons/c70116144be386def9e675d76dacfe64.png",
   [ArmorPerkOrSlot.SlotGardenOfSalvation]:
-    "https://www.bungie.net/common/destiny2_content/icons/53d6e3505cd03d4026b3dbbd9ccc19b6.jpg",
+    "https://www.bungie.net/common/destiny2_content/icons/94fe19fb98ae33e79921e3a8aa07800f.jpg",
   [ArmorPerkOrSlot.SlotDeepStoneCrypt]:
-    "https://www.bungie.net/common/destiny2_content/icons/d6452d010cfe72a51a9089ec68ab223c.png",
+    "https://bungie.net/common/destiny2_content/icons/3c14e3c3a747a7487c76f38602b9e2fe.png",
   [ArmorPerkOrSlot.SlotVaultOfGlass]:
-    "https://www.bungie.net/common/destiny2_content/icons/7c9a2d95113de19c5acdbed57775abf4.png",
+    "https://bungie.net/common/destiny2_content/icons/9603e0d01826d7ab97ce1b1bf3eb3c96.png",
   [ArmorPerkOrSlot.SlotVowOfTheDisciple]:
-    "https://www.bungie.net/common/destiny2_content/icons/b84b6ea72dd05de7123aa2ae87ba0d6a.png",
+    "https://www.bungie.net//common/destiny2_content/icons/1f66fa02b19f40e6ce5d8336c7ed5a00.png",
   [ArmorPerkOrSlot.PerkIronBanner]:
     "https://bungie.net/common/destiny2_content/icons/DestinyActivityModeDefinition_fe57052d7cf971f7502daa75a2ca2437.png",
   [ArmorPerkOrSlot.PerkUniformedOfficer]:
-    "https://www.bungie.net/common/destiny2_content/icons/b4f6064c3757f9a6725b80f88ee824c0.png",
+    "https://bungie.net/common/destiny2_content/icons/b39b83dd5ea3d9144e4e63f103af8b46.png",
   [ArmorPerkOrSlot.SlotKingsFall]:
-    "https://www.bungie.net/common/destiny2_content/icons/0e515c7cf25a2f2350b788e6f5b7f8eb.png",
+    "https://www.bungie.net/common/destiny2_content/icons/bc809878e0c2ed8fd32feb62aaae690c.png",
   [ArmorPerkOrSlot.PerkPlunderersTrappings]:
-    "https://www.bungie.net/common/destiny2_content/icons/7394ce8bcde3a665584b988cc133d62c.png",
+    "https://www.bungie.net/common/destiny2_content/icons/d7ad8979dab2f4544e2cfb66f262f7d1.png",
   [ArmorPerkOrSlot.SeraphSensorArray]:
-    "https://www.bungie.net/common/destiny2_content/icons/7394ce8bcde3a665584b988cc133d62c.png",
+    "https://www.bungie.net/common/destiny2_content/icons/d7ad8979dab2f4544e2cfb66f262f7d1.png",
   [ArmorPerkOrSlot.SlotRootOfNightmares]:
-    "https://www.bungie.net/common/destiny2_content/icons/f2b6ec58e14244e4972705897667c246.png",
+    "https://www.bungie.net/common/destiny2_content/icons/9694158ef08d416ab091062629b6b7ec.png",
   [ArmorPerkOrSlot.PerkQueensFavor]:
-    "https://www.bungie.net/common/destiny2_content/icons/8d844c97fa13f4cb649358404d011be7.png",
-  [ArmorPerkOrSlot.SonarAmplifier]:
-    "https://www.bungie.net/common/destiny2_content/icons/e083d8a85c2c60825204d14b9e9263b7.png",
+    "https://www.bungie.net/common/destiny2_content/icons/d64dc503b9a88c179635e777c30db86c.png",
   [ArmorPerkOrSlot.COUNT]: "",
 };
 
@@ -182,7 +178,6 @@ export const ArmorPerkOrSlotDIMText: EnumDictionary<ArmorPerkOrSlot, string> = {
   [ArmorPerkOrSlot.SeraphSensorArray]: 'perkname:"seraph sensor array"',
   [ArmorPerkOrSlot.SlotRootOfNightmares]: "modslot:rootofnightmares",
   [ArmorPerkOrSlot.PerkQueensFavor]: 'perkname:"queen\'s favor"',
-  [ArmorPerkOrSlot.SonarAmplifier]: 'perkname:"sonar amplifier"',
   [ArmorPerkOrSlot.COUNT]: "",
 };
 
@@ -198,13 +193,13 @@ export const ArmorAffinityNames: EnumDictionary<DestinyEnergyType, string> = {
 export const ArmorAffinityIcons: EnumDictionary<DestinyEnergyType, string> = {
   [DestinyEnergyType.Any]: "",
   [DestinyEnergyType.Arc]:
-    "https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_092d066688b879c807c3b460afdd61e6.png",
+    "https://www.bungie.net/common/destiny2_content/icons/DestinyEnergyTypeDefinition_092d066688b879c807c3b460afdd61e6.png",
   [DestinyEnergyType.Thermal]:
-    "https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_2a1773e10968f2d088b97c22b22bba9e.png",
+    "https://www.bungie.net/common/destiny2_content/icons/DestinyEnergyTypeDefinition_2a1773e10968f2d088b97c22b22bba9e.png",
   [DestinyEnergyType.Void]:
-    "https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_ceb2f6197dccf3958bb31cc783eb97a0.png",
+    "https://www.bungie.net/common/destiny2_content/icons/DestinyEnergyTypeDefinition_ceb2f6197dccf3958bb31cc783eb97a0.png",
   [DestinyEnergyType.Stasis]:
-    "https://www.bungie.net/common/destiny2_content/icons/DestinyDamageTypeDefinition_530c4c3e7981dc2aefd24fd3293482bf.png",
+    "https://www.bungie.net/common/destiny2_content/icons/DestinyEnergyTypeDefinition_530c4c3e7981dc2aefd24fd3293482bf.png",
   [DestinyEnergyType.Ghost]: "",
   [DestinyEnergyType.Subclass]: "",
 };
