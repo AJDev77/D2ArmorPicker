@@ -18,11 +18,11 @@
 import { ArmorPerkOrSlot, ArmorStat } from "./enum/armor-stat";
 import { ModOrAbility } from "./enum/modOrAbility";
 import { EnumDictionary } from "./types/EnumDictionary";
-import { CharacterClass } from "./enum/character-Class";
 import { MAXIMUM_STAT_MOD_AMOUNT } from "./constants";
 import { ArmorSlot } from "./enum/armor-slot";
 import { ModifierType } from "./enum/modifierType";
 import { ModOptimizationStrategy } from "./enum/mod-optimization-strategy";
+import { DestinyClass } from "bungie-api-ts/destiny2/interfaces";
 
 export function getDefaultStatDict(
   value: number
@@ -43,13 +43,14 @@ export interface FixableSelection<T> {
 }
 
 export class BuildConfiguration {
-  characterClass: CharacterClass = CharacterClass.Titan;
+  characterClass: DestinyClass = DestinyClass.Titan;
 
   // Add constant +1 strength
   addConstent1Resilience = false;
 
-  // TODO REMOVE THIS
+  assumeClassItemIsArtifice = false;
   assumeEveryLegendaryIsArtifice = false;
+  assumeEveryExoticIsArtifice = false;
 
   // contains a list of item instances IDs that shall not be used in builds
   disabledItems: string[] = [];
@@ -64,6 +65,9 @@ export class BuildConfiguration {
     [ArmorStat.Strength]: { fixed: false, value: 0 },
   };
   maximumStatMods: number = 5; // TODO: remove
+
+  // if set, then we can use the exact stats like 6x69. It will be stored as "fixed 6.9" in minimumStatTiers
+  allowExactStats = false;
 
   // Fixable, BUT the bool is not yet used. Maybe in a future update.
   maximumModSlots: EnumDictionary<ArmorSlot, FixableSelection<number>> = {
@@ -108,10 +112,13 @@ export class BuildConfiguration {
 
   static buildEmptyConfiguration(): BuildConfiguration {
     return {
+      allowExactStats: false,
       enabledMods: [],
       disabledItems: [],
       addConstent1Resilience: false,
-      assumeEveryLegendaryIsArtifice: false, // TODO :REMOVE
+      assumeEveryLegendaryIsArtifice: false,
+      assumeEveryExoticIsArtifice: false,
+      assumeClassItemIsArtifice: false,
       putArtificeMods: true,
       useFotlArmor: false,
       maximumStatMods: MAXIMUM_STAT_MOD_AMOUNT,
@@ -130,7 +137,7 @@ export class BuildConfiguration {
       onlyShowResultsWithNoWastedStats: false,
       showWastedStatsColumn: false,
       showPotentialTierColumn: false,
-      characterClass: CharacterClass.Titan,
+      characterClass: DestinyClass.Titan,
       selectedModElement: ModifierType.Stasis,
       selectedExotics: [],
       maximumModSlots: {

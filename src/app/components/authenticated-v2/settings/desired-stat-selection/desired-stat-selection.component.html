@@ -55,6 +55,7 @@
     <td>
       <app-stat-tier-selection
         [stat]="enum.value"
+        [allowExactStats]="config_allowExactStats"
         [statsByMods]="statsByMods[enum.value]"
         [maximumAvailableTier]="maximumPossibleTiers[enum.value]"
         [selectedTier]="minimumStatTiers[enum.value].value"
@@ -172,6 +173,7 @@
 <div>
   <div><b>Mod optimization strategy:</b></div>
   <div>You can choose if the algorithm should keep an eye on amount or the cost of mods.</div>
+  <div>These settings are extremely expensive when paired with the reduced waste feature.</div>
   <mat-button-toggle-group
     [(ngModel)]="config_mod_strategy"
     (change)="setModOptimizationStrategy()">

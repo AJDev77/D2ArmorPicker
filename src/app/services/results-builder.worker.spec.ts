@@ -15,12 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { handlePermutation } from "./results-builder.worker";
+import { getSkillTier, getWaste, handlePermutation } from "./results-builder.worker";
 import { DestinyClass, TierType } from "bungie-api-ts/destiny2";
 import { ArmorSlot } from "../data/enum/armor-slot";
-import { ArmorPerkOrSlot, ArmorStat } from "../data/enum/armor-stat";
+import { ArmorPerkOrSlot, ArmorStat, STAT_MOD_VALUES, StatModifier } from "../data/enum/armor-stat";
 import { BuildConfiguration } from "../data/buildConfiguration";
 import { IInventoryArmor, InventoryArmorSource } from "../data/types/IInventoryArmor";
+import { IPermutatorArmor } from "../data/types/IPermutatorArmor";
+import { IPermutatorArmorSet } from "../data/types/IPermutatorArmorSet";
+import { ResultDefinition } from "../components/authenticated-v2/results/results.component";
 
 const plugs = [
   [1, 1, 10],
@@ -151,6 +154,8 @@ function buildTestItem(
     statPlugHashes: [],
     socketEntries: [],
     watermarkIcon: "",
+    created_at: Date.now(),
+    updated_at: Date.now(),
   };
 }
 
@@ -221,18 +226,19 @@ describe("Results Worker", () => {
     config.minimumStatTiers[ArmorStat.Intellect].value = 5;
     config.minimumStatTiers[ArmorStat.Strength].value = 2;
 
-    let result = handlePermutation(
+    let presult = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       [0, 0, 0, 0, 0, 0], // constant bonus
       [5, 5, 5, 1, 1], // availableModCost
       false, // doNotOutput
       true // hasArtificeClassItem
-    );
+    ) as IPermutatorArmorSet;
+    let result = CreateResultDefinition(presult, mockItems);
     expect(result).toBeDefined();
     expect(result.mods.length).toEqual(5);
     expect(result.artifice.length).toEqual(1);
@@ -291,18 +297,19 @@ describe("Results Worker", () => {
     config.minimumStatTiers[ArmorStat.Intellect].value = 0;
     config.minimumStatTiers[ArmorStat.Strength].value = 0;
 
-    let result = handlePermutation(
+    let presult = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       [0, 0, 0, 0, 0, 0], // constant bonus
       [5, 5, 5, 5, 5], // availableModCost
       false, // doNotOutput
       true // hasArtificeClassItem
-    );
+    ) as IPermutatorArmorSet;
+    let result = CreateResultDefinition(presult, mockItems);
     expect(result).toBeDefined();
     expect(result.stats[0]).toBeGreaterThanOrEqual(
       config.minimumStatTiers[ArmorStat.Mobility].value * 10
@@ -360,18 +367,19 @@ describe("Results Worker", () => {
     config.minimumStatTiers[ArmorStat.Strength].value = 0;
 
     const constantBonus = [-10, 0, 10, 0, 0, -10];
-    let result = handlePermutation(
+    let presult = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       constantBonus, // constant bonus
       [5, 5, 5, 5, 5], // availableModCost
       false, // doNotOutput
       true // hasArtificeClassItem
-    );
+    ) as IPermutatorArmorSet;
+    let result = CreateResultDefinition(presult, mockItems);
     expect(result).toBeDefined();
     console.log(result);
     expect(result.stats[0]).toBeGreaterThanOrEqual(
@@ -409,29 +417,26 @@ describe("Results Worker", () => {
   });
 
   it("should be able to keep plain zero-waste builds", () => {
-    // this is an edge case in which the artifice mod, which initially will be applied to
-    // mobility, must be moved to Recovery. Otherwise, this set would not be possible.
-
     const runtime = buildRuntime();
 
     const mockItems: IInventoryArmor[] = [
       buildTestItem(ArmorSlot.ArmorSlotHelmet, false, [8, 9, 16, 23, 2, 8]),
       buildTestItem(ArmorSlot.ArmorSlotGauntlet, false, [2, 9, 20, 26, 6, 2]),
       buildTestItem(ArmorSlot.ArmorSlotChest, true, [7, 2, 23, 21, 10, 2]),
-      buildTestItem(ArmorSlot.ArmorSlotLegs, true, [3, 20, 11, 20, 2, 8]),
+      buildTestItem(ArmorSlot.ArmorSlotLegs, false, [3, 20, 11, 20, 2, 8]),
     ];
 
-    const config = new BuildConfiguration();
+    const config = BuildConfiguration.buildEmptyConfiguration();
     config.tryLimitWastedStats = true;
     config.onlyShowResultsWithNoWastedStats = true;
 
     let result = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       [0, 0, 0, 0, 0, 0], // constant bonus
       [5, 5, 5, 5, 5], // availableModCost
       false, // doNotOutput
@@ -476,18 +481,19 @@ describe("Results Worker", () => {
     config.tryLimitWastedStats = true;
     config.onlyShowResultsWithNoWastedStats = true;
 
-    let result = handlePermutation(
+    let presult = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       [0, 0, 0, 0, 0, 0], // constant bonus
       [5, 5, 5, 5, 5], // availableModCost
       false, // doNotOutput
       true // hasArtificeClassItem
-    );
+    ) as IPermutatorArmorSet;
+    let result = CreateResultDefinition(presult, mockItems);
     expect(result).toBeDefined();
     expect(result).not.toBeNull();
     expect(result.waste).toEqual(0);
@@ -518,10 +524,10 @@ describe("Results Worker", () => {
       let result = handlePermutation(
         runtime,
         config,
-        mockItems[0],
-        mockItems[1],
-        mockItems[2],
-        mockItems[3],
+        mockItems[0] as unknown as IPermutatorArmor,
+        mockItems[1] as unknown as IPermutatorArmor,
+        mockItems[2] as unknown as IPermutatorArmor,
+        mockItems[3] as unknown as IPermutatorArmor,
         constantBonus1,
         availableModCost,
         false,
@@ -531,34 +537,26 @@ describe("Results Worker", () => {
       // grab the runtime.maximumPossibleTiers and iterate over them to see if it correctly fills them
       // first, pick a random order
       const order = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
-      console.log(n, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      console.log(n, "Order", order);
-      console.log(n, "availableModCost", availableModCost);
 
       for (let statId of order) {
-        console.log(
-          "~~~~~~ stat id",
-          statId,
-          "set to stats",
-          runtime.maximumPossibleTiers.map((x) => Math.floor(x / 10))
-        );
         config.minimumStatTiers[statId as ArmorStat].value = Math.floor(
           runtime.maximumPossibleTiers[statId] / 10
         );
 
         runtime = buildRuntime();
-        let result = handlePermutation(
+        let presult = handlePermutation(
           runtime,
           config,
-          mockItems[0],
-          mockItems[1],
-          mockItems[2],
-          mockItems[3],
+          mockItems[0] as unknown as IPermutatorArmor,
+          mockItems[1] as unknown as IPermutatorArmor,
+          mockItems[2] as unknown as IPermutatorArmor,
+          mockItems[3] as unknown as IPermutatorArmor,
           constantBonus1,
           availableModCost,
           false,
           true
-        );
+        ) as IPermutatorArmorSet;
+        let result = CreateResultDefinition(presult, mockItems);
         expect(result).toBeDefined();
         expect(result).not.toBeNull();
         expect(result.mods.length).toBeLessThanOrEqual(5);
@@ -665,18 +663,19 @@ describe("Results Worker", () => {
 
     //const constantBonus = [-10, -10, -10, -10, -10, -10];
     const constantBonus = [0, 0, 0, 0, 0, 0];
-    let result = handlePermutation(
+    let presult = handlePermutation(
       runtime,
       config, // todo config
-      mockItems[0],
-      mockItems[1],
-      mockItems[2],
-      mockItems[3],
+      mockItems[0] as unknown as IPermutatorArmor,
+      mockItems[1] as unknown as IPermutatorArmor,
+      mockItems[2] as unknown as IPermutatorArmor,
+      mockItems[3] as unknown as IPermutatorArmor,
       constantBonus, // constant bonus
       [5, 5, 5, 5, 5], // availableModCost
       false, // doNotOutput
       true // hasArtificeClassItem
-    );
+    ) as IPermutatorArmorSet;
+    let result = CreateResultDefinition(presult, mockItems);
     expect(result).toBeDefined();
     console.log(result);
     expect(result.mods.length).toBeLessThanOrEqual(5);
@@ -714,3 +713,61 @@ describe("Results Worker", () => {
     }
   });
 });
+
+function CreateResultDefinition(
+  armorSet: IPermutatorArmorSet,
+  items: IInventoryArmor[]
+): ResultDefinition {
+  let exotic = items.find((x) => x.isExotic);
+  return {
+    exotic:
+      exotic == null
+        ? []
+        : [
+            {
+              icon: exotic?.icon,
+              watermark: exotic?.watermarkIcon,
+              name: exotic?.name,
+              hash: exotic?.hash,
+            },
+          ],
+    artifice: armorSet.usedArtifice,
+    modCount: armorSet.usedMods.length,
+    modCost: armorSet.usedMods.reduce((p, d: StatModifier) => p + STAT_MOD_VALUES[d][2], 0),
+    mods: armorSet.usedMods,
+    stats: armorSet.statsWithMods,
+    statsNoMods: armorSet.statsWithoutMods,
+    tiers: getSkillTier(armorSet.statsWithMods),
+    waste: getWaste(armorSet.statsWithMods),
+    items: items.reduce(
+      (p: any[], instance) => {
+        p[instance.slot - 1].push({
+          energyLevel: instance.energyLevel,
+          hash: instance.hash,
+          itemInstanceId: instance.itemInstanceId,
+          name: instance.name,
+          exotic: !!instance.isExotic,
+          masterworked: instance.masterworked,
+          mayBeBugged: instance.mayBeBugged,
+          slot: instance.slot,
+          perk: instance.perk,
+          transferState: 0, // TRANSFER_NONE
+          stats: [
+            instance.mobility,
+            instance.resilience,
+            instance.recovery,
+            instance.discipline,
+            instance.intellect,
+            instance.strength,
+          ],
+          source: instance.source,
+        });
+        return p;
+      },
+      [[], [], [], []]
+    ),
+    classItem: armorSet.classItemPerk,
+    usesCollectionRoll: items.some((v) => v.source === InventoryArmorSource.Collections),
+    usesVendorRoll: items.some((v) => v.source === InventoryArmorSource.Vendor),
+  } as unknown as ResultDefinition;
+}

@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
-import { environment } from "../../environments/environment";
 import {
   getVendors,
-  HttpClientConfig,
+  getVendor,
   DestinyComponentType,
   DestinyItemType,
   DestinyVendorItemState,
@@ -40,26 +39,44 @@ export class VendorsService {
     nextRefreshDate: number;
   }> {
     const vendorsResponse = await getVendors((d) => this.http.$http(d, false), {
-      components: [
-        DestinyComponentType.Vendors,
-        DestinyComponentType.VendorSales,
-        DestinyComponentType.ItemStats,
-      ],
+      components: [DestinyComponentType.Vendors, DestinyComponentType.VendorSales],
       characterId,
       membershipType: destinyMembership.membershipType,
       destinyMembershipId: destinyMembership.membershipId,
       filter: 0,
     });
 
-    const vendorItems = Object.entries(vendorsResponse.Response.vendors.data!)
-      .filter(([_vendorHash, vendor]) => vendor.enabled)
-      .flatMap(([vendorHash, vendor]) => {
-        const saleItems = vendorsResponse.Response.sales.data?.[vendorHash]?.saleItems ?? {};
-        const vendorItemStats =
-          vendorsResponse.Response.itemComponents[parseInt(vendorHash)].stats.data ?? {};
+    const enabledVendors = Object.entries(vendorsResponse.Response.vendors.data!).filter(
+      ([_vendorHash, vendor]) => vendor.enabled
+    );
+    const vendors = enabledVendors
+      .filter(
+        ([vendorHash, vendor]) =>
+          Object.entries(vendorsResponse.Response.sales.data?.[vendorHash]?.saleItems ?? {}).find(
+            ([vendorItemIndex, saleItem]) => manifestItems[saleItem.itemHash]?.armor2 == true
+          ) !== undefined
+      )
+      .map(([vendorHash, vendor]) => ({
+        vendorHash: vendorHash,
+        refreshDate: new Date(vendor.nextRefreshDate).getTime(),
+      }));
 
-        const vendorArmorItems = Object.entries(saleItems)
-          .map(([vendorItemIndex, saleItem]) => {
+    const vendorArmorItems: IInventoryArmor[] = [];
+    const nextRefreshDate = Math.min(...vendors.map((v) => v.refreshDate));
+    const VendorPromises = vendors.map((vendor) => {
+      let vendorHash = vendor.vendorHash;
+      return getVendor((d) => this.http.$http(d, false), {
+        components: [DestinyComponentType.ItemStats],
+        characterId,
+        membershipType: destinyMembership.membershipType,
+        destinyMembershipId: destinyMembership.membershipId,
+        vendorHash: parseInt(vendorHash),
+      }).then(
+        (vendorResponse) => {
+          const saleItems = vendorsResponse.Response.sales.data?.[vendorHash]?.saleItems ?? {};
+          const vendorItemStats = vendorResponse.Response.itemComponents.stats.data ?? {};
+
+          const armor = Object.entries(saleItems).map(([vendorItemIndex, saleItem]) => {
             const manifestItem = manifestItems[saleItem.itemHash];
             const itemStats = vendorItemStats[parseInt(vendorItemIndex)];
 
@@ -88,21 +105,17 @@ export class VendorsService {
               InventoryArmorSource.Vendor
             );
             applyInvestmentStats(r, statsOverride);
-            return r;
-          })
-          .filter(Boolean) as IInventoryArmor[];
+            vendorArmorItems.push(r);
+          });
+        },
+        (reason) => {
+          console.error(`Failed to get vendor: ${reason}`);
+        }
+      );
+    });
 
-        return {
-          items: vendorArmorItems,
-          nextRefreshDate: new Date(vendor.nextRefreshDate).getTime(),
-        };
-      })
-      .filter(({ items }) => items.length > 0);
-
-    const vendorArmorItems = vendorItems.flatMap(({ items }) => items);
-
-    const nextRefreshDate = Math.min(...vendorItems.map(({ nextRefreshDate }) => nextRefreshDate));
-
+    //const vendorArmorItems = vendorItems.flatMap(({ items }) => items);
+    await Promise.all(VendorPromises);
     console.log(
       `Collected ${vendorArmorItems.length} vendor armor items for character ${characterId}`
     );
@@ -113,7 +126,7 @@ export class VendorsService {
     };
   }
 
-  private isVendorCacheValid() {
+  isVendorCacheValid() {
     const nextRefreshTimeStr = localStorage.getItem(VENDOR_NEXT_REFRESH_KEY);
     if (!nextRefreshTimeStr) {
       return false;
@@ -138,10 +151,14 @@ export class VendorsService {
     localStorage.setItem(VENDOR_NEXT_REFRESH_KEY, nextRefreshDate.toISOString());
   }
 
+  /**
+   * Updates the vendor armor items cache if it is invalid
+   * @returns true if the cache was updated, false if the cache is still valid
+   */
   async updateVendorArmorItemsCache() {
     if (this.isVendorCacheValid()) {
       console.log("Using vendor items cache");
-      return;
+      return false;
     }
 
     const destinyMembership = await this.membership.getMembershipDataForCurrentUser();
@@ -166,13 +183,15 @@ export class VendorsService {
       const nextRefreshDate = Math.min(
         ...vendorArmorItems.map(({ nextRefreshDate }) => nextRefreshDate)
       );
-      return this.writeVendorCache(allItems, new Date(nextRefreshDate));
+      this.writeVendorCache(allItems, new Date(nextRefreshDate));
+      return true;
     } catch (e) {
       console.error("Failed to update vendor armor items cache", e);
       // refresh sooner if we failed to update the cache
       const nextRefreshDate = new Date();
       nextRefreshDate.setMinutes(nextRefreshDate.getMinutes() + 5);
       this.writeVendorCache([], new Date(nextRefreshDate));
+      return false;
     }
   }
 }

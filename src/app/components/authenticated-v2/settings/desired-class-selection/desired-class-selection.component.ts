@@ -15,9 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Subject } from "rxjs";
-import { CharacterClass } from "../../../../data/enum/character-Class";
 import { ConfigurationService } from "../../../../services/configuration.service";
 import { takeUntil } from "rxjs/operators";
 import { UserdataService } from "../../../../services/userdata.service";
@@ -36,7 +35,7 @@ export class DesiredClassSelectionComponent implements OnInit, OnDestroy {
     "4257549985": number;
     "4257549984": number;
     "3159615086": number;
-    "1022552290": number;
+    "3467984096": number;
   } | null = null;
 
   constructor(
@@ -91,13 +90,13 @@ export class DesiredClassSelectionComponent implements OnInit, OnDestroy {
       "4257549985": number;
       "4257549984": number;
       "3159615086": number;
-      "1022552290": number;
+      "3467984096": number;
     } = JSON.parse(localStorage.getItem("stored-materials") || "{}");
     if (!("3853748946" in k)) k["3853748946"] = 0;
     if (!("4257549984" in k)) k["4257549984"] = 0;
     if (!("4257549985" in k)) k["4257549985"] = 0;
     if (!("3159615086" in k)) k["3159615086"] = 0;
-    if (!("1022552290" in k)) k["1022552290"] = 0;
+    if (!("3467984096" in k)) k["3467984096"] = 0;
     this.storedMaterials = k;
   }
 }

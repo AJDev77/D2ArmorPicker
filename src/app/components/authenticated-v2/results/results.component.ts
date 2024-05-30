@@ -20,7 +20,6 @@ import { InventoryService } from "../../../services/inventory.service";
 import { DatabaseService } from "../../../services/database.service";
 import { MatTableDataSource } from "@angular/material/table";
 import { BungieApiService } from "../../../services/bungie-api.service";
-import { CharacterClass } from "../../../data/enum/character-Class";
 import { ConfigurationService } from "../../../services/configuration.service";
 import { ArmorPerkOrSlot, ArmorStat, StatModifier } from "../../../data/enum/armor-stat";
 import { ModOrAbility } from "../../../data/enum/modOrAbility";
@@ -28,9 +27,7 @@ import { MatPaginator } from "@angular/material/paginator";
 import { MatSort } from "@angular/material/sort";
 import { StatusProviderService } from "../../../services/status-provider.service";
 import { animate, state, style, transition, trigger } from "@angular/animations";
-import { ModInformation } from "../../../data/ModInformation";
-import { ModifierType } from "../../../data/enum/modifierType";
-import { DestinyEnergyType } from "bungie-api-ts/destiny2";
+import { DestinyClass } from "bungie-api-ts/destiny2";
 import { ArmorSlot } from "../../../data/enum/armor-slot";
 import { FixableSelection } from "../../../data/buildConfiguration";
 import { Subject } from "rxjs";
@@ -122,6 +119,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
   _config_includeVendorRolls: Boolean = false;
   _config_onlyShowResultsWithNoWastedStats: Boolean = false;
   _config_assumeEveryLegendaryIsArtifice: Boolean = false;
+  _config_assumeEveryExoticIsArtifice: Boolean = false;
   _config_modslotLimitation: FixableSelection<number>[] = [];
   _config_armorPerkLimitation: FixableSelection<ArmorPerkOrSlot>[] = [];
 
@@ -143,7 +141,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
   ];
 
   // info values
-  selectedClass: CharacterClass = CharacterClass.None;
+  selectedClass: DestinyClass = DestinyClass.Unknown;
   totalTime: number = 0;
   itemCount: number = 0;
   totalResults: number = 0;
@@ -174,6 +172,7 @@ export class ResultsComponent implements OnInit, OnDestroy {
       this._config_includeVendorRolls = c.includeVendorRolls;
       this._config_onlyShowResultsWithNoWastedStats = c.onlyShowResultsWithNoWastedStats;
       this._config_assumeEveryLegendaryIsArtifice = c.assumeEveryLegendaryIsArtifice;
+      this._config_assumeEveryExoticIsArtifice = c.assumeEveryExoticIsArtifice;
       this._config_selectedExotics = c.selectedExotics;
       this._config_armorPerkLimitation = Object.entries(c.armorPerks)
         .filter((v) => v[1].value != ArmorPerkOrSlot.None)

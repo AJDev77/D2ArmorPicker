@@ -101,6 +101,35 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
             help: undefined,
           },
         ],
+        "Artifice Slots": [
+          {
+            name: "Assume every legendary class item is an artifice armor.",
+            cp: (v: boolean) =>
+              this.config.modifyConfiguration((c) => (c.assumeClassItemIsArtifice = v)),
+            value: c.assumeClassItemIsArtifice || c.assumeEveryLegendaryIsArtifice,
+            disabled: c.assumeEveryLegendaryIsArtifice,
+            impactsResultCount: true,
+            help: "This is for debugging purposes. No support if you enable this.",
+          },
+          {
+            name: "Assume every legendary is an artifice armor.",
+            cp: (v: boolean) =>
+              this.config.modifyConfiguration((c) => (c.assumeEveryLegendaryIsArtifice = v)),
+            value: c.assumeEveryLegendaryIsArtifice,
+            disabled: false,
+            impactsResultCount: true,
+            help: "This is for debugging purposes. No support if you enable this.",
+          },
+          {
+            name: "Assume every exotic has an artifice slot.",
+            cp: (v: boolean) =>
+              this.config.modifyConfiguration((c) => (c.assumeEveryExoticIsArtifice = v)),
+            value: c.assumeEveryExoticIsArtifice,
+            disabled: false,
+            impactsResultCount: true,
+            help: "Preparation for the upcoming Artifice Mod Slot for exotics.",
+          },
+        ],
         "Performance Optimization": [
           {
             name: "Use security features to prevent app crashes (resets on reload).",
@@ -161,13 +190,20 @@ export class AdvancedSettingsComponent implements OnInit, OnDestroy {
             help: "You usually do not want to use this.",
           },
           {
-            name: "Assume every legendary is an artifice armor.",
+            name: "Replace the tier selection with text fields for exact stat values.",
             cp: (v: boolean) =>
-              this.config.modifyConfiguration((c) => (c.assumeEveryLegendaryIsArtifice = v)),
-            value: c.assumeEveryLegendaryIsArtifice,
+              this.config.modifyConfiguration((c) => {
+                c.allowExactStats = v;
+                if (!v) {
+                  for (let cf of Object.values(c.minimumStatTiers)) {
+                    cf.value = Math.floor(cf.value);
+                  }
+                }
+              }),
+            value: c.allowExactStats,
             disabled: false,
             impactsResultCount: true,
-            help: "This is for debugging purposes. Do not complain if you enable this. Reload after changing this setting.",
+            help: "This is a beta feature. Usability and quality may vary a lot.",
           },
         ],
       };

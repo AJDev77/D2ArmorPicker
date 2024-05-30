@@ -30,11 +30,12 @@ import { CharacterStatsService } from "../../../services/character-stats.service
 @Component({
   selector: "app-app-v2-core",
   templateUrl: "./app-v2-core.component.html",
-  styleUrls: ["./app-v2-core.component.css"],
+  styleUrls: ["./app-v2-core.component.scss"],
 })
 export class AppV2CoreComponent implements OnInit {
   version = environment.version;
   activeLinkIndex = 0;
+  computationProgress = 0;
   navLinks = [
     {
       link: "/",
@@ -88,6 +89,10 @@ export class AppV2CoreComponent implements OnInit {
     });
 
     this.characterStats.loadCharacterStats();
+
+    this.inv.calculationProgress.subscribe((progress) => {
+      this.computationProgress = progress;
+    });
   }
 
   async refreshAll(b: boolean) {

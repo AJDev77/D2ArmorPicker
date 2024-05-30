@@ -17,10 +17,8 @@
 
 import { Injectable } from "@angular/core";
 import {
-  DestinyClass,
   DestinyComponentType,
   DestinyInventoryItemDefinition,
-  DestinyItemSocketState,
   DestinyItemType,
   DestinyCollectibleState,
   equipItem,
@@ -48,7 +46,6 @@ import { ArmorPerkOrSlot, ArmorPerkSocketHashes } from "../data/enum/armor-stat"
 import { ConfigurationService } from "./configuration.service";
 import { IManifestCollectible } from "../data/types/IManifestCollectible";
 import { MembershipService } from "./membership.service";
-import { VendorsService } from "./vendors.service";
 import { HttpClientService } from "./http-client.service";
 import { IVendorInfo } from "../data/types/IVendorInfo";
 
@@ -99,8 +96,7 @@ export class BungieApiService {
     private http: HttpClientService,
     private db: DatabaseService,
     private config: ConfigurationService,
-    private membership: MembershipService,
-    private vendors: VendorsService
+    private membership: MembershipService
   ) {
     this.config.configuration.subscribe(async (config) => {
       this.config_assumeEveryLegendaryIsArtifice = config.assumeEveryLegendaryIsArtifice;
@@ -253,8 +249,6 @@ export class BungieApiService {
       destinyMembershipId: destinyMembership.membershipId,
     });
 
-    await this.vendors.updateVendorArmorItemsCache();
-
     const unlockedExoticArmorItemHashes = await this.getUnlockedExoticArmor(
       profile.Response.characterCollectibles.data ?? {}
     );
@@ -273,8 +267,9 @@ export class BungieApiService {
     // 3853748946 enhancement core
     // 4257549984 enhancement prism
     // 4257549985 Ascendant Shard
+    // 3467984096 Exotic Cipher
     var materials = allItems
-      .filter((k) => [3853748946, 4257549984, 4257549985].indexOf(k.itemHash!) > -1)
+      .filter((k) => [3853748946, 4257549984, 4257549985, 3467984096].indexOf(k.itemHash!) > -1)
       .reduce((previousValue, currentValue) => {
         if (!(currentValue.itemHash.toString() in previousValue)) {
           previousValue[currentValue.itemHash] = 0;
@@ -286,10 +281,6 @@ export class BungieApiService {
       profile.Response.profileCurrencies.data?.items.filter((k) => k.itemHash == 3159615086) || [];
     if (glimmerEntry.length > 0) materials["3159615086"] = glimmerEntry[0].quantity;
     else materials["3159615086"] = 0;
-    let legShardEntry =
-      profile.Response.profileCurrencies.data?.items.filter((k) => k.itemHash == 1022552290) || [];
-    if (legShardEntry.length > 0) materials["1022552290"] = legShardEntry[0].quantity;
-    else materials["1022552290"] = 0;
     localStorage.setItem("stored-materials", JSON.stringify(materials));
 
     // Collect a list of all armor item hashes that we need to look up in the manifest
@@ -348,9 +339,6 @@ export class BungieApiService {
           if (!hasPerk) r.perk = ArmorPerkOrSlot.None;
         }
 
-        if (!r.isExotic && this.config_assumeEveryLegendaryIsArtifice)
-          r.perk = ArmorPerkOrSlot.SlotArtifice;
-
         return r as IInventoryArmor;
       })
       .filter(Boolean) as IInventoryArmor[];
@@ -382,16 +370,70 @@ export class BungieApiService {
       .filter(Boolean) as IInventoryArmor[];
 
     r = r.concat(collectionRollItems);
-
     r = r.filter((k) => !k["statPlugHashes"] || k["statPlugHashes"][0] != null);
 
-    await this.db.inventoryArmor.where("source").notEqual(InventoryArmorSource.Vendor).delete();
-    await this.db.inventoryArmor.bulkAdd(r);
+    await this.updateDatabaseItems(r);
 
     localStorage.setItem("LastArmorUpdate", Date.now().toString());
     localStorage.setItem("last-armor-db-name", this.db.inventoryArmor.db.name);
 
     return r;
+  }
+
+  private async updateDatabaseItems(newItems: IInventoryArmor[]) {
+    // get all items from the database. This saves us from having to do a lot of slow (!) queries.
+    const dbItems = await this.db.inventoryArmor.toArray();
+
+    const newItemInstanceIds = new Set(newItems.map((d) => d.itemInstanceId));
+    // get the IDs of all items with no source
+    const ids_noSource = dbItems
+      .filter((d) => d.source == null || d.source == undefined)
+      .map((d) => d.id);
+    // get the IDs of all items that are not in the new inventory (and thus should be deleted)
+    const ids_deleted = dbItems
+      .filter((d) => !newItemInstanceIds.has(d.itemInstanceId))
+      .filter((d) => d.source != InventoryArmorSource.Vendor)
+      .map((d) => d.id);
+
+    // get the IDs that are in both, the db and the new inventory, and thus should be updated
+    let entries_existing = dbItems.filter((d) => newItemInstanceIds.has(d.itemInstanceId));
+    // now filter these that actually have changed
+    entries_existing = entries_existing.filter((d) => {
+      let c = newItems.find((k) => k.itemInstanceId == d.itemInstanceId);
+      if (!c) return false;
+      // if masterwork, energy, etc change, return true
+      if (c.masterworked != d.masterworked) return true;
+      if (c.energyLevel != d.energyLevel) return true;
+      if (c.perk != d.perk) return true;
+      return false;
+    });
+
+    // delete the entries
+    const idsToDelete = ids_noSource.concat(ids_deleted);
+    if (idsToDelete.length > 0) await this.db.inventoryArmor.bulkDelete(idsToDelete);
+
+    // update the entries
+    if (entries_existing.length > 0) {
+      await this.db.inventoryArmor.bulkUpdate(
+        entries_existing.map((d) => {
+          return {
+            key: d.id,
+            changes: {
+              masterworked: d.masterworked,
+              energyLevel: d.energyLevel,
+              perk: d.perk,
+              updated_at: Date.now(),
+            },
+          };
+        })
+      );
+    }
+
+    // add the entries
+    const entriesToAdd = newItems.filter(
+      (d) => !dbItems.find((k) => k.itemInstanceId == d.itemInstanceId)
+    );
+    if (entriesToAdd.length > 0) await this.db.inventoryArmor.bulkAdd(entriesToAdd);
   }
 
   private getArmorPerk(v: DestinyInventoryItemDefinition): ArmorPerkOrSlot {
@@ -543,6 +585,7 @@ export class BungieApiService {
         if (v.inventory?.bucketTypeHash == 3551918588) return true; // gauntlets
         if (v.inventory?.bucketTypeHash == 14239492) return true; // chest
         if (v.inventory?.bucketTypeHash == 20886954) return true; // leg
+        if (v.inventory?.bucketTypeHash == 1585787867 && v.inventory.tierType == 6) return true; // exotic class items
         return false;
       })
       .map(([k, v]) => {
