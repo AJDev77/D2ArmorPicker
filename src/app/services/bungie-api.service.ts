@@ -48,6 +48,7 @@ import { IManifestCollectible } from "../data/types/IManifestCollectible";
 import { MembershipService } from "./membership.service";
 import { HttpClientService } from "./http-client.service";
 import { IVendorInfo } from "../data/types/IVendorInfo";
+import { StatusProviderService } from "./status-provider.service";
 
 function collectInvestmentStats(
   r: IInventoryArmor,
@@ -92,7 +93,7 @@ export class BungieApiService {
   config_assumeEveryLegendaryIsArtifice = false;
 
   constructor(
-    private authService: AuthService,
+    private status: StatusProviderService,
     private http: HttpClientService,
     private db: DatabaseService,
     private config: ConfigurationService,
@@ -110,9 +111,10 @@ export class BungieApiService {
   ): Promise<boolean> {
     let destinyMembership = await this.membership.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      this.status.setApiError();
       return false;
     }
+    this.status.clearApiError();
 
     let r1 = await getItem((d) => this.http.$http(d), {
       membershipType: destinyMembership.membershipType,
@@ -164,9 +166,10 @@ export class BungieApiService {
     console.info("moveItemToVault", itemInstanceId);
     let destinyMembership = await this.membership.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      this.status.setApiError();
       return;
     }
+    this.status.clearApiError();
 
     const r1 = await getItem((d) => this.http.$http(d), {
       membershipType: destinyMembership.membershipType,
@@ -227,9 +230,10 @@ export class BungieApiService {
           return;
     let destinyMembership = await this.membership.getMembershipDataForCurrentUser();
     if (!destinyMembership) {
-      await this.authService.logout();
+      this.status.setApiError();
       return;
     }
+    this.status.clearApiError();
 
     console.info("BungieApiService", "getProfile");
     let profile = await getProfile((d) => this.http.$http(d), {
@@ -447,7 +451,7 @@ export class BungieApiService {
     const scks = v.sockets?.socketEntries ?? [];
 
     // Is this necessary? the singleInitialItemHash is also being checked
-    if (scks.find((d) => d.reusablePlugSetHash == 1346)) return ArmorPerkOrSlot.SlotArtifice;
+    if (scks.find((d) => d.reusablePlugSetHash == 1402)) return ArmorPerkOrSlot.SlotArtifice;
 
     for (const socket of scks) {
       const socketHash = socket.singleInitialItemHash;
